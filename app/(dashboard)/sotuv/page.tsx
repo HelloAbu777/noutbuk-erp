@@ -755,6 +755,7 @@ export default function SotuvPage() {
   } | null>(null);
   const [shopInfo, setShopInfo] = useState({ shopName: "Noutbuk Do'kon", address: '', phone: '', checkText: "Xaridingiz uchun rahmat!" });
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [mobileTab, setMobileTab] = useState<'products' | 'cart'>('products');
 
   const productsRef = useRef<Product[]>([]);
   useEffect(() => { productsRef.current = products; }, [products]);
@@ -776,11 +777,30 @@ export default function SotuvPage() {
     localStorage.setItem(OCHRAT_KEY, JSON.stringify(orders));
   };
 
-  const loadProducts = useCallback(() => {
+  const loadProducts = useCallback((force = false) => {
+    if (!force) {
+      try {
+        const raw = sessionStorage.getItem('erp_products');
+        if (raw) {
+          const { data, ts } = JSON.parse(raw);
+          if (Date.now() - ts < 90000 && Array.isArray(data) && data.length > 0) {
+            setProducts(data);
+            setLoadingProducts(false);
+            return;
+          }
+        }
+      } catch {}
+    }
     setLoadingProducts(true);
     fetch('/api/products')
       .then((r) => r.json())
-      .then((data) => { setProducts(Array.isArray(data) ? data : []); setLoadingProducts(false); })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+          try { sessionStorage.setItem('erp_products', JSON.stringify({ data, ts: Date.now() })); } catch {}
+        }
+        setLoadingProducts(false);
+      })
       .catch(() => setLoadingProducts(false));
   }, []);
 
@@ -919,6 +939,8 @@ export default function SotuvPage() {
       }];
     });
     setError('');
+    // Mobilda savatga o'tish
+    if (window.innerWidth < 1024) setMobileTab('cart');
   };
 
   const changeQty = (productId: string, delta: number) => {
@@ -1011,7 +1033,7 @@ export default function SotuvPage() {
         items: savedCart,
         customer: savedCustomer,
       });
-      clearCart(); loadProducts();
+      clearCart(); loadProducts(true);
     } catch { setError("Server bilan bog'lanishda xatolik"); }
     setSubmitting(false);
   };
@@ -1064,9 +1086,28 @@ export default function SotuvPage() {
           onClose={() => setSuccessData(null)} />
       )}
 
-      <div className="pt-14 h-screen flex overflow-hidden">
+      {/* Mobile tab bar */}
+      <div className="lg:hidden fixed top-14 left-0 right-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex h-10">
+        <button onClick={() => setMobileTab('products')}
+          className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors border-b-2 ${mobileTab === 'products' ? 'text-blue-600 border-blue-500' : 'text-gray-500 border-transparent'}`}>
+          <ShoppingCart size={15} /> Mahsulotlar
+        </button>
+        <button onClick={() => setMobileTab('cart')}
+          className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors border-b-2 relative ${mobileTab === 'cart' ? 'text-blue-600 border-blue-500' : 'text-gray-500 border-transparent'}`}>
+          <ShoppingCart size={15} /> Savat
+          {cartCount > 0 && (
+            <span className="absolute top-1 right-1/4 w-4 h-4 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <div className="pt-14 lg:pt-14 h-screen flex overflow-hidden" style={{ paddingTop: undefined }}>
+        <div className="pt-10 lg:pt-0 flex flex-1 overflow-hidden w-full">
+
         {/* ── LEFT: Products ── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className={`${mobileTab === 'cart' ? 'hidden' : 'flex'} lg:flex flex-1 flex-col overflow-hidden`}>
           {/* Toolbar */}
           <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center gap-3">
             <div className="relative flex-1 max-w-lg">
@@ -1173,7 +1214,7 @@ export default function SotuvPage() {
         </div>
 
         {/* ── RIGHT: Cart ── */}
-        <div className="w-80 xl:w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
+        <div className={`${mobileTab === 'products' ? 'hidden' : 'flex'} lg:flex flex-col w-full lg:w-80 xl:w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900`}>
           {/* Cart header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center gap-2">
@@ -1362,6 +1403,7 @@ export default function SotuvPage() {
               )}
             </button>
           </div>
+        </div>
         </div>
       </div>
     </>
