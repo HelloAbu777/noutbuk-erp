@@ -939,8 +939,6 @@ export default function SotuvPage() {
       }];
     });
     setError('');
-    // Mobilda savatga o'tish
-    if (window.innerWidth < 1024) setMobileTab('cart');
   };
 
   const changeQty = (productId: string, delta: number) => {
