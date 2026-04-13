@@ -767,17 +767,17 @@ export default function TovarlarPage() {
 
       {/* Pastdagi floating bar */}
       {selectedIds.size > 0 && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-gray-900 dark:bg-gray-800 text-white px-5 py-3 rounded-2xl shadow-xl border border-gray-700">
-          <span className="text-sm font-medium">{selectedIds.size} ta tanlandi</span>
-          <div className="w-px h-4 bg-gray-600" />
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-3 py-2 rounded-xl shadow-lg border border-gray-700">
+          <span className="text-xs font-medium">{selectedIds.size} ta</span>
+          <div className="w-px h-3 bg-gray-600" />
           <button onClick={printSelected}
-            className="flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors">
-            <Printer size={15} /> Chop etish
+            className="flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">
+            <Printer size={13} /> Chop
           </button>
-          <div className="w-px h-4 bg-gray-600" />
+          <div className="w-px h-3 bg-gray-600" />
           <button onClick={() => setSelectedIds(new Set())}
-            className="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors">
-            <X size={14} /> Tozalash
+            className="flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors">
+            <X size={12} /> Tozalash
           </button>
         </div>
       )}
