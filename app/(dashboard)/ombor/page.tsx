@@ -280,25 +280,29 @@ function OmmaviyKirimModal({ items, onClose, onSaved }: {
               {filtered.map(p => {
                 const adding = parseInt(qtys[p._id] ?? '') || 0;
                 return (
-                  <div key={p._id} className={`rounded-xl border p-3 transition-colors ${adding > 0 ? 'border-green-400 bg-green-50 dark:bg-green-500/10' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}`}>
-                    <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1">{p.name}</p>
-                    <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2">{p.category}</span>
-                    <div className="flex gap-1.5 mb-2">
-                      <div className="flex-1 bg-gray-50 dark:bg-gray-900 rounded-lg p-1.5 text-center">
-                        <p className="text-xs text-gray-400">Ombor</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{p.quantity}</p>
-                      </div>
-                      <div className="flex-1 bg-gray-50 dark:bg-gray-900 rounded-lg p-1.5 text-center">
-                        <p className="text-xs text-gray-400">Chiqarilgan</p>
-                        <p className={`text-sm font-bold ${p.status === 'sent_to_shop' ? 'text-green-600 dark:text-green-400' : 'text-gray-300 dark:text-gray-600'}`}>
-                          {p.status === 'sent_to_shop' ? 'Ha' : '—'}
-                        </p>
+                  <div key={p._id} className={`rounded-xl border transition-colors flex flex-col ${adding > 0 ? 'border-green-400 bg-green-50 dark:bg-green-500/10' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}`}>
+                    <div className="p-3 flex-1 flex flex-col">
+                      <p className="text-xs font-semibold text-gray-900 dark:text-white leading-tight mb-2 h-8 line-clamp-2">{p.name}</p>
+                      <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2 self-start">{p.category}</span>
+                      <div className="grid grid-cols-2 gap-2 mb-2">
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-1.5 text-center">
+                          <p className="text-gray-400 text-[10px]">Ombor</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{p.quantity}</p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-1.5 text-center">
+                          <p className="text-gray-400 text-[10px]">Chiqarilgan</p>
+                          <p className={`text-sm font-bold ${p.status === 'sent_to_shop' ? 'text-green-600 dark:text-green-400' : 'text-gray-300 dark:text-gray-600'}`}>
+                            {p.status === 'sent_to_shop' ? 'Ha' : '—'}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <input type="number" min="0" placeholder="+0"
-                      value={qtys[p._id] ?? ''}
-                      onChange={e => setQtys(prev => ({ ...prev, [p._id]: e.target.value }))}
-                      className="w-full px-2 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-center text-gray-900 dark:text-white focus:outline-none focus:border-green-400" />
+                    <div className="p-3 pt-0">
+                      <input type="number" min="0" placeholder="+0"
+                        value={qtys[p._id] ?? ''}
+                        onChange={e => setQtys(prev => ({ ...prev, [p._id]: e.target.value }))}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-center text-gray-900 dark:text-white focus:outline-none focus:border-green-400" />
+                    </div>
                   </div>
                 );
               })}
