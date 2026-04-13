@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
-    "reset": "tsx scripts/reset-data.ts"
+    "reset": "tsx scripts/reset-data.ts",
+    "set-quantity": "tsx scripts/set-quantity.ts"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
