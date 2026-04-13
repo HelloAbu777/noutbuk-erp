@@ -6,7 +6,7 @@ interface StatsCardProps {
 }
 
 function formatSum(amount: number) {
-  return new Intl.NumberFormat('uz-UZ').format(amount) + " so'm";
+  return new Intl.NumberFormat('uz-UZ').format(amount);
 }
 
 export default function StatsCard({ title, value, color, icon }: StatsCardProps) {
@@ -23,16 +23,19 @@ export default function StatsCard({ title, value, color, icon }: StatsCardProps)
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-sm text-gray-500 dark:text-gray-400">{title}</span>
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${iconBg[color]}`}>
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 sm:p-5">
+      {/* Icon + title row */}
+      <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
+        <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 leading-tight line-clamp-2">{title}</span>
+        <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex-shrink-0 flex items-center justify-center ${iconBg[color]}`}>
           {icon}
         </div>
       </div>
-      <p className={`text-xl font-bold ${valueColor[color]}`}>
+      {/* Value */}
+      <p className={`text-base sm:text-xl font-bold leading-tight ${valueColor[color]}`}>
         {formatSum(value)}
       </p>
+      <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">so'm</p>
     </div>
   );
 }
