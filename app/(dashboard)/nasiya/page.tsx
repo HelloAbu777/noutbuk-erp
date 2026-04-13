@@ -66,7 +66,7 @@ function PayModal({ nasiya, onClose, onSave }: { nasiya: Nasiya; onClose: () => 
             </button>
             <button onClick={handlePay} disabled={saving}
               className="flex-1 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white font-medium rounded-lg text-sm">
-              {saving ? 'Saqlanmoqda...' : "To'lov qabul qilish"}
+              {saving ? 'Saqlanmoqda...' : "To'lov"}
             </button>
           </div>
         </div>
@@ -116,22 +116,23 @@ export default function NasiyaPage() {
     <>
       <Header title="Nasiya" />
       {payModal && <PayModal nasiya={payModal} onClose={() => setPayModal(null)} onSave={() => { setPayModal(null); load(); }} />}
-      <div className="pt-14 min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="p-6 space-y-6">
+      <div className="pt-14 min-h-screen pb-16 lg:pb-0 bg-gray-50 dark:bg-gray-950">
+        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
+
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             {[
               { label: 'Jami nasiya', value: stats ? stats.totalAmount.toLocaleString('uz-UZ') + " so'm" : '...', icon: CreditCard, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-500/10' },
               { label: 'Ochiq qarzlar', value: stats ? stats.open + ' ta' : '...', icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10' },
               { label: "Muddati o'tgan", value: stats ? stats.overdue + ' ta' : '...', icon: AlertCircle, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10' },
               { label: "To'langan", value: stats ? stats.paid + ' ta' : '...', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-500/10' },
             ].map(s => (
-              <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${s.bg}`}><s.icon size={18} className={s.color} /></div>
-                  <div>
-                    <p className="text-xs text-gray-500">{s.label}</p>
-                    <p className="font-semibold text-gray-900 dark:text-white text-sm">{s.value}</p>
+              <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl p-3 lg:p-4 border border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-2 lg:gap-3">
+                  <div className={`p-1.5 lg:p-2 rounded-lg ${s.bg} flex-shrink-0`}><s.icon size={16} className={s.color} /></div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-500 truncate">{s.label}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{s.value}</p>
                   </div>
                 </div>
               </div>
@@ -139,60 +140,104 @@ export default function NasiyaPage() {
           </div>
 
           {/* Filters & Search */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-1">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-1 overflow-x-auto">
               {([['all', 'Hammasi'], ['open', 'Ochiq'], ['overdue', "Muddati o'tgan"], ['paid', "To'langan"]] as const).map(([v, l]) => (
                 <button key={v} onClick={() => setFilter(v)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${filter === v ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${filter === v ? 'bg-blue-500 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
                   {l}
                 </button>
               ))}
             </div>
-            <div className="relative flex-1 max-w-xs">
+            <div className="relative flex-1">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Ism yoki telefon..."
                 className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
             </div>
           </div>
 
-          {/* Table */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                <tr>{['Mijoz', 'Telefon', 'Jami', "To'langan", 'Qoldiq', 'Sana', 'Muddat', 'Holat', 'Amallar'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
-                ))}</tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                {loading ? Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}><td colSpan={9}><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mx-4 my-3" /></td></tr>
-                )) : filtered.length === 0 ? (
-                  <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">
-                    <CreditCard size={36} className="mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">Nasiya topilmadi</p>
-                  </td></tr>
-                ) : filtered.map(n => (
-                  <tr key={n._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{n.customerName}</td>
-                    <td className="px-4 py-3 text-gray-500">{n.customerPhone}</td>
-                    <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white">{n.totalAmount.toLocaleString('uz-UZ')}</td>
-                    <td className="px-4 py-3 text-green-600">{n.paidAmount.toLocaleString('uz-UZ')}</td>
-                    <td className="px-4 py-3 font-semibold text-red-500">{n.remainingAmount.toLocaleString('uz-UZ')}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{new Date(n.date).toLocaleDateString('uz-UZ')}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{n.dueDate ? new Date(n.dueDate).toLocaleDateString('uz-UZ') : '—'}</td>
-                    <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[n.status]}`}>{STATUS_LABELS[n.status]}</span></td>
-                    <td className="px-4 py-3">
-                      {n.status !== 'paid' && (
-                        <button onClick={() => setPayModal(n)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg">
-                          To'lash
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Mobile: cards */}
+          <div className="sm:hidden space-y-3">
+            {loading ? Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-24 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 animate-pulse" />
+            )) : filtered.length === 0 ? (
+              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 py-12 text-center text-gray-400">
+                <CreditCard size={36} className="mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Nasiya topilmadi</p>
+              </div>
+            ) : filtered.map(n => (
+              <div key={n._id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-white">{n.customerName}</p>
+                    <p className="text-xs text-gray-500">{n.customerPhone}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[n.status]}`}>{STATUS_LABELS[n.status]}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-400">Jami</p>
+                    <p className="text-xs font-bold text-gray-900 dark:text-white">{n.totalAmount.toLocaleString('uz-UZ')}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-400">To'langan</p>
+                    <p className="text-xs font-bold text-green-600">{n.paidAmount.toLocaleString('uz-UZ')}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-400">Qoldiq</p>
+                    <p className="text-xs font-bold text-red-500">{n.remainingAmount.toLocaleString('uz-UZ')}</p>
+                  </div>
+                </div>
+                {n.status !== 'paid' && (
+                  <button onClick={() => setPayModal(n)}
+                    className="w-full py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg">
+                    To'lov qabul qilish
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="hidden sm:block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <tr>{['Mijoz', 'Telefon', 'Jami', "To'langan", 'Qoldiq', 'Sana', 'Muddat', 'Holat', 'Amallar'].map(h => (
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}</tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                  {loading ? Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}><td colSpan={9}><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mx-4 my-3" /></td></tr>
+                  )) : filtered.length === 0 ? (
+                    <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">
+                      <CreditCard size={36} className="mx-auto mb-2 opacity-30" />
+                      <p className="text-sm">Nasiya topilmadi</p>
+                    </td></tr>
+                  ) : filtered.map(n => (
+                    <tr key={n._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">{n.customerName}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{n.customerPhone}</td>
+                      <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{n.totalAmount.toLocaleString('uz-UZ')}</td>
+                      <td className="px-4 py-3 text-green-600 whitespace-nowrap">{n.paidAmount.toLocaleString('uz-UZ')}</td>
+                      <td className="px-4 py-3 font-semibold text-red-500 whitespace-nowrap">{n.remainingAmount.toLocaleString('uz-UZ')}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{new Date(n.date).toLocaleDateString('uz-UZ')}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{n.dueDate ? new Date(n.dueDate).toLocaleDateString('uz-UZ') : '—'}</td>
+                      <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${STATUS_COLORS[n.status]}`}>{STATUS_LABELS[n.status]}</span></td>
+                      <td className="px-4 py-3">
+                        {n.status !== 'paid' && (
+                          <button onClick={() => setPayModal(n)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg whitespace-nowrap">
+                            To'lash
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

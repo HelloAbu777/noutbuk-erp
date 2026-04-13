@@ -42,10 +42,10 @@ function DokonTab() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+    <div className="space-y-4 lg:space-y-6">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Do'kon ma'lumotlari</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {([["shopName", "Do'kon nomi"], ["address", "Manzil"], ["phone", "Telefon"], ["checkText", "Chek matni"]] as const).map(([k, l]) => (
             <div key={k}>
               <label className="text-xs text-gray-500 mb-1 block">{l}</label>
@@ -60,7 +60,7 @@ function DokonTab() {
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Kategoriyalar</h3>
         <div className="flex flex-wrap gap-2 mb-3">
           {categories.map(c => (
@@ -131,7 +131,6 @@ function TelegramTab() {
 
   return (
     <div className="space-y-4">
-      {/* Qanday ulash */}
       <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-200 dark:border-blue-500/20 p-4">
         <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2">Qanday sozlash kerak?</p>
         <ol className="space-y-1 text-xs text-blue-600 dark:text-blue-400">
@@ -142,7 +141,7 @@ function TelegramTab() {
         </ol>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-800 dark:text-white">Bot sozlamalari</h3>
           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -310,16 +309,48 @@ function FoydalanuvchilarTab() {
     <div className="space-y-4">
       <div className="flex justify-end">
         <button onClick={() => setModal({})}
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium">
+          className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium">
           <Plus size={16} />Ishchi qo'shish
         </button>
       </div>
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+
+      {/* Mobile: card list */}
+      <div className="sm:hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+        {active.length === 0 ? (
+          <div className="py-10 text-center text-gray-400 text-sm">Foydalanuvchi topilmadi</div>
+        ) : active.map(u => (
+          <div key={u._id} className="p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{u.name.charAt(0).toUpperCase()}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{u.name}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[u.role]}`}>{ROLE_LABELS[u.role]}</span>
+                <span className="text-xs text-gray-400 font-mono truncate">{u.login}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button onClick={() => setModal(u)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
+                <Pencil size={14} />
+              </button>
+              {u._id !== session?.user?.id && (
+                <button onClick={() => handleDeactivate(u._id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500">
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700">
               {["Ism familiya", "Login", "Telefon", "Rol", "Holat", "Amallar"].map(h => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400">{h}</th>
+                <th key={h} className="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
@@ -328,7 +359,7 @@ function FoydalanuvchilarTab() {
               <tr key={u._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{u.name}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono text-xs">{u.login}</td>
-                <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{u.phone || '—'}</td>
+                <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">{u.phone || '—'}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[u.role]}`}>{ROLE_LABELS[u.role]}</span>
                 </td>
@@ -348,6 +379,7 @@ function FoydalanuvchilarTab() {
           </tbody>
         </table>
       </div>
+
       {modal !== false && (
         <UserModal user={modal} onClose={() => setModal(false)} onSave={() => { setModal(false); load(); }} />
       )}
@@ -382,11 +414,11 @@ function ProfilTab() {
   };
 
   return (
-    <div className="space-y-6 max-w-md">
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+    <div className="space-y-4 lg:space-y-6 max-w-md">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Profil ma'lumotlari</h3>
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-lg font-bold">
+          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
             {session?.user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </div>
           <div>
@@ -396,7 +428,7 @@ function ProfilTab() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-4">Parolni yangilash</h3>
         <div className="space-y-3">
           {[["Joriy parol", currentPass, setCurrentPass], ["Yangi parol", newPass, setNewPass], ["Tasdiqlash", confirmPass, setConfirmPass]].map(([label, val, setter], i) => (
@@ -469,7 +501,7 @@ function ZaxiraTab() {
 
   return (
     <div className="space-y-4 max-w-md">
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-2">Zaxira nusxa</h3>
         <p className="text-xs text-gray-500 mb-4">Barcha ma'lumotlarni JSON formatida yuklab oling yoki tiklang.</p>
         {msg && (
@@ -515,16 +547,18 @@ export default function SozlamalarPage() {
   return (
     <>
       <Header title="Sozlamalar" />
-      <div className="pt-14 min-h-screen">
-        <div className="p-6">
-          {/* Tabs */}
-          <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-6 flex-wrap">
-            {TABS.map(({ id, label, icon: Icon }) => (
-              <button key={id} onClick={() => setTab(id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === id ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
-                <Icon size={15} />{label}
-              </button>
-            ))}
+      <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="p-4 lg:p-6">
+          {/* Tabs — scrollable on mobile */}
+          <div className="overflow-x-auto mb-4 lg:mb-6">
+            <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 w-max min-w-full sm:w-auto">
+              {TABS.map(({ id, label, icon: Icon }) => (
+                <button key={id} onClick={() => setTab(id)}
+                  className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${tab === id ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>
+                  <Icon size={14} />{label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {tab === 'dokon' && <DokonTab />}

@@ -90,24 +90,69 @@ export default function TamirotchilarPage() {
     <>
       <Header title="Ta'minotchilar" />
       {modal !== false && <Modal supplier={modal} onClose={() => setModal(false)} onSave={() => { setModal(false); load(); }} />}
-      <div className="pt-14 min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="relative flex-1 max-w-sm">
+      <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="p-4 lg:p-6">
+          {/* Toolbar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4 lg:mb-6">
+            <div className="relative flex-1 sm:max-w-sm">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..."
-                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
             </div>
             <button onClick={() => setModal({})}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg">
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl whitespace-nowrap">
               <Plus size={16} /> Qo'shish
             </button>
           </div>
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+
+          {/* Mobile: card list */}
+          <div className="sm:hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="p-4"><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" /></div>
+              ))
+            ) : filtered.length === 0 ? (
+              <div className="py-12 text-center text-gray-400">
+                <Truck size={36} className="mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Ta'minotchi topilmadi</p>
+              </div>
+            ) : filtered.map(s => (
+              <div key={s._id} className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{s.companyName}</p>
+                    {s.contactPerson && <p className="text-xs text-gray-500 mt-0.5">{s.contactPerson}</p>}
+                    <p className="text-xs text-gray-400 mt-0.5">{s.phone}</p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button onClick={() => setModal(s)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500">
+                      <Pencil size={14} />
+                    </button>
+                    <button onClick={() => remove(s._id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                    <p className="text-xs text-gray-400">Jami xarid</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">{s.totalPurchased.toLocaleString('uz-UZ')}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+                    <p className="text-xs text-gray-400">To'langan</p>
+                    <p className="text-sm font-semibold text-green-600 whitespace-nowrap">{s.totalPaid.toLocaleString('uz-UZ')}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="hidden sm:block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <tr>{["Kompaniya", "Mas'ul shaxs", "Telefon", "Manzil", "Jami xarid", "To'langan", "Amallar"].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}</tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -122,10 +167,10 @@ export default function TamirotchilarPage() {
                   <tr key={s._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                     <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{s.companyName}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{s.contactPerson || '—'}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{s.phone}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{s.address || '—'}</td>
-                    <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white">{s.totalPurchased.toLocaleString('uz-UZ')}</td>
-                    <td className="px-4 py-3 text-green-600">{s.totalPaid.toLocaleString('uz-UZ')}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{s.phone}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs max-w-[120px] truncate">{s.address || '—'}</td>
+                    <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{s.totalPurchased.toLocaleString('uz-UZ')}</td>
+                    <td className="px-4 py-3 text-green-600 whitespace-nowrap">{s.totalPaid.toLocaleString('uz-UZ')}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button onClick={() => setModal(s)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500"><Pencil size={14} /></button>

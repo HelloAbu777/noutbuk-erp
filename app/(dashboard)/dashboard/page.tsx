@@ -98,8 +98,8 @@ export default async function DashboardPage() {
   return (
     <>
       <Header title="Bosh sahifa" />
-      <div className="pt-14 min-h-screen">
-        <div className="p-6">
+      <div className="pt-14 pb-16 lg:pb-0 min-h-screen">
+        <div className="p-4 lg:p-6">
           {/* Stats kartochkalari */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
             <StatsCard

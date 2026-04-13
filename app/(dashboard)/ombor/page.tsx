@@ -439,8 +439,8 @@ export default function OmborPage() {
           onSaved={() => { setShowOmmaviyKirim(false); load(); }} />
       )}
 
-      <div className="pt-14 min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="p-6">
+      <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="p-4 lg:p-6">
 
           {/* Toolbar */}
           <div className="flex items-center gap-2 mb-6 flex-wrap">

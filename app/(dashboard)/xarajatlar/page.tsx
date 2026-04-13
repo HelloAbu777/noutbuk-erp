@@ -110,40 +110,73 @@ export default function XarajatlarPage() {
     <>
       <Header title="Xarajatlar" />
       {showAdd && <AddModal onClose={() => setShowAdd(false)} onSave={() => { setShowAdd(false); load(); }} />}
-      <div className="pt-14 min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="p-6 space-y-4">
+      <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="p-4 lg:p-6 space-y-4">
           {/* Header row */}
-          <div className="flex items-center justify-between">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3">
               <p className="text-xs text-gray-500">Jami xarajat</p>
-              <p className="font-bold text-lg text-red-500">{total.toLocaleString('uz-UZ')} so'm</p>
+              <p className="font-bold text-lg text-red-500 whitespace-nowrap">{total.toLocaleString('uz-UZ')} so'm</p>
             </div>
             <button onClick={() => setShowAdd(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg">
-              <Plus size={16} /> Xarajat qo'shish
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl whitespace-nowrap">
+              <Plus size={16} />
+              <span className="hidden sm:inline">Xarajat qo'shish</span>
+              <span className="sm:hidden">Qo'shish</span>
             </button>
           </div>
 
           {/* Category tabs */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex overflow-x-auto gap-2 pb-1">
             <button onClick={() => setCatFilter('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${catFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400'}`}>
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${catFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400'}`}>
               Hammasi
             </button>
             {EXPENSE_CATS.map(c => (
               <button key={c} onClick={() => setCatFilter(c)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${catFilter === c ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
+                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${catFilter === c ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                 {c}
               </button>
             ))}
           </div>
 
-          {/* Table */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          {/* Mobile: card list */}
+          <div className="sm:hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="p-4"><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" /></div>
+              ))
+            ) : filtered.length === 0 ? (
+              <div className="py-12 text-center text-gray-400">
+                <Receipt size={36} className="mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Xarajat topilmadi</p>
+              </div>
+            ) : filtered.map(e => (
+              <div key={e._id} className="p-4 flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{e.title}</p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="px-2 py-0.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-xs">{e.category}</span>
+                    <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(e.date).toLocaleDateString('uz-UZ')}</span>
+                  </div>
+                  {e.note && <p className="text-xs text-gray-400 mt-1 truncate">{e.note}</p>}
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="font-semibold text-red-500 whitespace-nowrap text-sm">{e.amount.toLocaleString('uz-UZ')}</span>
+                  <button onClick={() => remove(e._id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="hidden sm:block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <tr>{['Sarlavha', 'Kategoriya', 'Miqdor', 'Izoh', 'Sana', "Mas'ul", 'Amallar'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}</tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -158,10 +191,10 @@ export default function XarajatlarPage() {
                   <tr key={e._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                     <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{e.title}</td>
                     <td className="px-4 py-3"><span className="px-2 py-0.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-xs">{e.category}</span></td>
-                    <td className="px-4 py-3 font-semibold text-red-500">{e.amount.toLocaleString('uz-UZ')}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{e.note || '—'}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{new Date(e.date).toLocaleDateString('uz-UZ')}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{e.createdByName}</td>
+                    <td className="px-4 py-3 font-semibold text-red-500 whitespace-nowrap">{e.amount.toLocaleString('uz-UZ')}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs max-w-[120px] truncate">{e.note || '—'}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{new Date(e.date).toLocaleDateString('uz-UZ')}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{e.createdByName}</td>
                     <td className="px-4 py-3">
                       <button onClick={() => remove(e._id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400"><Trash2 size={14} /></button>
                     </td>

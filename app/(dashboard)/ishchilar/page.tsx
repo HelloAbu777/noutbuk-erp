@@ -88,7 +88,6 @@ function WorkerModal({ worker, onClose, onSave }: {
           </button>
         </div>
         <div className="p-5 space-y-4">
-          {/* Asosiy ma'lumotlar */}
           <div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Asosiy ma'lumotlar</p>
             <div className="space-y-3">
@@ -132,7 +131,6 @@ function WorkerModal({ worker, onClose, onSave }: {
             </div>
           </div>
 
-          {/* Shaxsiy ma'lumotlar */}
           <div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Shaxsiy ma'lumotlar</p>
             <div className="space-y-3">
@@ -197,7 +195,6 @@ function DetailPanel({ worker, onClose, onEdit }: {
           </button>
         </div>
         <div className="p-5">
-          {/* Avatar & name */}
           <div className="flex items-center gap-4 mb-5">
             <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -304,8 +301,8 @@ export default function IshchilarPage() {
   return (
     <>
       <Header title="Ishchilar" />
-      <div className="pt-14 min-h-screen bg-gray-50 dark:bg-gray-950">
-        <div className="p-6 space-y-5">
+      <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="p-4 lg:p-6 space-y-4 lg:space-y-5">
 
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -316,47 +313,88 @@ export default function IshchilarPage() {
               { label: 'Jami oylik', value: totalSalary ? `${totalSalary.toLocaleString('uz-UZ')} so'm` : '—', color: 'text-blue-600' },
             ].map((s, i) => (
               <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3">
-                <p className="text-xs text-gray-500 mb-1">{s.label}</p>
-                <p className={`font-bold text-lg ${s.color}`}>{s.value}</p>
+                <p className="text-xs text-gray-500 mb-1 truncate">{s.label}</p>
+                <p className={`font-bold text-lg truncate ${s.color}`}>{s.value}</p>
               </div>
             ))}
           </div>
 
           {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-3">
+            <div className="relative">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Ism, telefon yoki lavozim bo'yicha qidirish..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
             </div>
-            <select value={posFilter} onChange={e => setPosFilter(e.target.value)}
-              className="px-3 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400">
-              <option value="all">Barcha lavozim</option>
-              {POSITIONS.map(p => <option key={p}>{p}</option>)}
-            </select>
-            <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-              {[['all', 'Barchasi'], ['active', 'Faol'], ['inactive', 'Nofaol']].map(([v, l]) => (
-                <button key={v} onClick={() => setStatusFilter(v as any)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${statusFilter === v ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
-                  {l}
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-2 items-center">
+              <select value={posFilter} onChange={e => setPosFilter(e.target.value)}
+                className="flex-1 min-w-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400">
+                <option value="all">Barcha lavozim</option>
+                {POSITIONS.map(p => <option key={p}>{p}</option>)}
+              </select>
+              <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+                {[['all', 'Barchasi'], ['active', 'Faol'], ['inactive', 'Nofaol']].map(([v, l]) => (
+                  <button key={v} onClick={() => setStatusFilter(v as any)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${statusFilter === v ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setModal({})}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium whitespace-nowrap">
+                <Plus size={16} />
+                <span className="hidden sm:inline">Ishchi qo'shish</span>
+                <span className="sm:hidden">Qo'shish</span>
+              </button>
             </div>
-            <button onClick={() => setModal({})}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium whitespace-nowrap">
-              <Plus size={16} /> Ishchi qo'shish
-            </button>
           </div>
 
-          {/* Table */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          {/* Mobile: card list */}
+          <div className="sm:hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="p-4"><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" /></div>
+              ))
+            ) : filtered.length === 0 ? (
+              <div className="py-14 text-center">
+                <Users size={36} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+                <p className="text-gray-400 text-sm">Ishchi topilmadi</p>
+              </div>
+            ) : filtered.map(w => (
+              <div key={w._id}
+                onClick={() => setDetail(w)}
+                className="p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 active:bg-gray-100 dark:active:bg-gray-800">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                    {w.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{w.name}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full text-xs font-medium">{w.position || '—'}</span>
+                    <span className="text-xs text-gray-400 truncate">{w.phone}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${w.status === 'active' ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                    {w.status === 'active' ? 'Faol' : 'Nofaol'}
+                  </span>
+                  <ChevronRight size={14} className="text-gray-300" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="hidden sm:block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
                     {['Ism familiya', 'Lavozim', 'Telefon', 'Oylik maosh', 'Ishga kirgan', 'Holat', ''].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                      <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -387,19 +425,19 @@ export default function IshchilarPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full text-xs font-medium">
+                        <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full text-xs font-medium whitespace-nowrap">
                           {w.position || '—'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{w.phone}</td>
-                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{w.phone}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">
                         {w.salary ? `${w.salary.toLocaleString('uz-UZ')} so'm` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">
+                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
                         {w.hireDate ? new Date(w.hireDate).toLocaleDateString('uz-UZ') : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${w.status === 'active' ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${w.status === 'active' ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
                           {w.status === 'active' ? 'Faol' : 'Nofaol'}
                         </span>
                       </td>
@@ -425,7 +463,6 @@ export default function IshchilarPage() {
         </div>
       </div>
 
-      {/* Detail panel */}
       {detail && (
         <DetailPanel
           worker={detail}
@@ -434,7 +471,6 @@ export default function IshchilarPage() {
         />
       )}
 
-      {/* Add/Edit modal */}
       {modal !== false && (
         <WorkerModal
           worker={modal}
