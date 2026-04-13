@@ -605,17 +605,18 @@ export default function TovarlarPage() {
                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-400" />
             </div>
 
-            {/* Harakat tarixi */}
-            <button onClick={() => setShowHarakatTarixi(true)}
-              className="flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">
-              <History size={15} /> Harakat tarixi
-            </button>
+            {/* Harakat tarixi va Ommaviy kirim - smartfonda grid, kompyuterda flex */}
+            <div className="grid grid-cols-2 lg:flex gap-2 w-full lg:w-auto">
+              <button onClick={() => setShowHarakatTarixi(true)}
+                className="flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">
+                <History size={15} /> Harakat tarixi
+              </button>
 
-            {/* Ommaviy kirim */}
-            <button onClick={() => setShowOmmaviyKirim(true)}
-              className="flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-green-200 dark:border-green-700 rounded-xl bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors whitespace-nowrap">
-              <PackagePlus size={15} /> Ommaviy kirim
-            </button>
+              <button onClick={() => setShowOmmaviyKirim(true)}
+                className="flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-green-200 dark:border-green-700 rounded-xl bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors whitespace-nowrap">
+                <PackagePlus size={15} /> Ommaviy kirim
+              </button>
+            </div>
 
             {/* View toggle */}
             <div className="flex gap-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-0.5">
