@@ -152,19 +152,20 @@ export default function XarajatlarPage() {
                 <p className="text-sm">Xarajat topilmadi</p>
               </div>
             ) : filtered.map(e => (
-              <div key={e._id} className="p-4 flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{e.title}</p>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="px-2 py-0.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-xs">{e.category}</span>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(e.date).toLocaleDateString('uz-UZ')}</span>
-                  </div>
-                  {e.note && <p className="text-xs text-gray-400 mt-1 truncate">{e.note}</p>}
+              <div key={e._id} className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <p className="font-medium text-gray-900 dark:text-white text-sm truncate flex-1 min-w-0">{e.title}</p>
+                  <span className="text-sm font-bold text-red-500 whitespace-nowrap flex-shrink-0">{e.amount.toLocaleString('uz-UZ')} so'm</span>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="font-semibold text-red-500 whitespace-nowrap text-sm">{e.amount.toLocaleString('uz-UZ')}</span>
-                  <button onClick={() => remove(e._id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400">
-                    <Trash2 size={14} />
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-xs">{e.category}</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(e.date).toLocaleDateString('uz-UZ')}</span>
+                  {e.note && <span className="text-xs text-gray-400 truncate">{e.note}</span>}
+                </div>
+                <div className="flex items-center justify-end gap-1 mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800">
+                  <button onClick={() => remove(e._id)}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </div>

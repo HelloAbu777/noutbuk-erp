@@ -167,33 +167,42 @@ export default function NasiyaPage() {
               </div>
             ) : filtered.map(n => (
               <div key={n._id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">{n.customerName}</p>
-                    <p className="text-xs text-gray-500">{n.customerPhone}</p>
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0 mr-2">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{n.customerName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{n.customerPhone}</p>
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[n.status]}`}>{STATUS_LABELS[n.status]}</span>
+                  <span className={`flex-shrink-0 px-2 py-0.5 rounded text-xs font-medium ${STATUS_COLORS[n.status]}`}>{STATUS_LABELS[n.status]}</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 mb-3">
+                {/* Metrics */}
+                <div className="grid grid-cols-3 gap-2">
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400">Jami</p>
-                    <p className="text-xs font-bold text-gray-900 dark:text-white">{n.totalAmount.toLocaleString('uz-UZ')}</p>
+                    <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight mt-0.5">{n.totalAmount.toLocaleString('uz-UZ')}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400">To'langan</p>
-                    <p className="text-xs font-bold text-green-600">{n.paidAmount.toLocaleString('uz-UZ')}</p>
+                    <p className="text-xs font-bold text-green-600 leading-tight mt-0.5">{n.paidAmount.toLocaleString('uz-UZ')}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400">Qoldiq</p>
-                    <p className="text-xs font-bold text-red-500">{n.remainingAmount.toLocaleString('uz-UZ')}</p>
+                    <p className="text-xs font-bold text-red-500 leading-tight mt-0.5">{n.remainingAmount.toLocaleString('uz-UZ')}</p>
                   </div>
                 </div>
-                {n.status !== 'paid' && (
-                  <button onClick={() => setPayModal(n)}
-                    className="w-full py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded-lg">
-                    To'lov qabul qilish
-                  </button>
-                )}
+                {/* Action — always same height */}
+                <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800">
+                  {n.status !== 'paid' ? (
+                    <button onClick={() => setPayModal(n)}
+                      className="w-full py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors">
+                      To'lov qabul qilish
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-center gap-1.5 py-1.5">
+                      <span className="text-xs text-green-600 font-medium">✅ To'liq to'langan</span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

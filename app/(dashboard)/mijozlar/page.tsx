@@ -235,35 +235,36 @@ export default function MijozlarPage() {
               </div>
             ) : filtered.map(c => (
               <div key={c._id} className="p-4">
+                {/* Info */}
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{c.name}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{c.phone}</p>
-                    {c.address && <p className="text-xs text-gray-400 mt-0.5 truncate">{c.address}</p>}
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
                     {c.telegramChatId
                       ? <span className="px-2 py-0.5 rounded-full text-xs bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 font-medium">✅ TG</span>
-                      : <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-400">TG —</span>
+                      : <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-400">— TG</span>
                     }
                     {c.debt > 0
-                      ? <span className="text-xs font-semibold text-red-500 whitespace-nowrap">{c.debt.toLocaleString('uz-UZ')} so'm</span>
-                      : <span className="text-xs text-green-600">✅ 0</span>
+                      ? <span className="text-xs font-bold text-red-500 whitespace-nowrap">{c.debt.toLocaleString('uz-UZ')} so'm</span>
+                      : <span className="text-xs text-green-600 font-medium">✅ 0</span>
                     }
                   </div>
                 </div>
-                <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-50 dark:border-gray-800">
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-1 pt-2.5 mt-2.5 border-t border-gray-100 dark:border-gray-800">
                   <button onClick={() => setSendModal(c)}
-                    className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500">
-                    <Send size={14} />
+                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500 transition-colors">
+                    <Send size={15} />
                   </button>
                   <button onClick={() => setModal(c)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
-                    <Pencil size={14} />
+                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 transition-colors">
+                    <Pencil size={15} />
                   </button>
                   <button onClick={() => handleDelete(c._id)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500">
-                    <Trash2 size={14} />
+                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </div>

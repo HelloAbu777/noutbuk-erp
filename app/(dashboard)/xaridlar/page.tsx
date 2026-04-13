@@ -200,28 +200,34 @@ export default function XaridlarPage() {
               </div>
             ) : filtered.map(p => (
               <div key={p._id} className="p-4">
-                <div className="flex items-start justify-between gap-2 mb-2">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-2 mb-2.5">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{p.productName}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{p.supplierName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">{p.supplierName}</p>
                   </div>
-                  <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded text-xs flex-shrink-0">{p.category}</span>
+                  <span className="flex-shrink-0 px-2 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded text-xs">{p.category}</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 mt-2">
+                {/* Metrics */}
+                <div className="grid grid-cols-3 gap-2">
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-2.5 py-2 text-center">
                     <p className="text-xs text-gray-400">Soni</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">{p.quantity}</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white mt-0.5">{p.quantity}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-2.5 py-2 text-center">
                     <p className="text-xs text-gray-400">Jami</p>
-                    <p className="text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap">{p.totalAmount.toLocaleString('uz-UZ')}</p>
+                    <p className="text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap mt-0.5">{p.totalAmount.toLocaleString('uz-UZ')}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-2.5 py-2 text-center">
                     <p className="text-xs text-gray-400">To'langan</p>
-                    <p className="text-xs font-semibold text-green-600 whitespace-nowrap">{p.paidAmount.toLocaleString('uz-UZ')}</p>
+                    <p className="text-xs font-semibold text-green-600 whitespace-nowrap mt-0.5">{p.paidAmount.toLocaleString('uz-UZ')}</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mt-2">{new Date(p.date).toLocaleDateString('uz-UZ')} · {p.createdByName}</p>
+                {/* Footer */}
+                <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800">
+                  <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(p.date).toLocaleDateString('uz-UZ')}</span>
+                  <span className="text-xs text-gray-400 truncate ml-2">{p.createdByName}</span>
+                </div>
               </div>
             ))}
           </div>

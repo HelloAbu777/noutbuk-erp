@@ -118,22 +118,16 @@ export default function TamirotchilarPage() {
               </div>
             ) : filtered.map(s => (
               <div key={s._id} className="p-4">
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{s.companyName}</p>
-                    {s.contactPerson && <p className="text-xs text-gray-500 mt-0.5">{s.contactPerson}</p>}
-                    <p className="text-xs text-gray-400 mt-0.5">{s.phone}</p>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <button onClick={() => setModal(s)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500">
-                      <Pencil size={14} />
-                    </button>
-                    <button onClick={() => remove(s._id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400">
-                      <Trash2 size={14} />
-                    </button>
+                {/* Info */}
+                <div className="mb-3">
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{s.companyName}</p>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    {s.contactPerson && <p className="text-xs text-gray-500 truncate">{s.contactPerson}</p>}
+                    <p className="text-xs text-gray-400 whitespace-nowrap">{s.phone}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                {/* Metrics */}
+                <div className="grid grid-cols-2 gap-2 mb-0">
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
                     <p className="text-xs text-gray-400">Jami xarid</p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">{s.totalPurchased.toLocaleString('uz-UZ')}</p>
@@ -142,6 +136,17 @@ export default function TamirotchilarPage() {
                     <p className="text-xs text-gray-400">To'langan</p>
                     <p className="text-sm font-semibold text-green-600 whitespace-nowrap">{s.totalPaid.toLocaleString('uz-UZ')}</p>
                   </div>
+                </div>
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-1 mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800">
+                  <button onClick={() => setModal(s)}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500 transition-colors">
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => remove(s._id)}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={15} />
+                  </button>
                 </div>
               </div>
             ))}
