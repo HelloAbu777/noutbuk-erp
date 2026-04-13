@@ -52,7 +52,25 @@ export async function POST(req: Request) {
 
     await connectDB();
 
+    // Mijozni topish yoki yaratish
+    const Customer = (await import('@/models/Customer')).default;
+    let customer = await Customer.findOne({ phone: customerPhone });
+    
+    if (!customer) {
+      customer = await Customer.create({
+        name: customerName,
+        phone: customerPhone,
+        address: '',
+        debt: parseFloat(totalAmount),
+      });
+    } else {
+      // Qarzni yangilash
+      customer.debt = (customer.debt || 0) + parseFloat(totalAmount);
+      await customer.save();
+    }
+
     const nasiya = await Nasiya.create({
+      customer: customer._id,
       customerName,
       customerPhone,
       totalAmount: parseFloat(totalAmount),
@@ -63,6 +81,8 @@ export async function POST(req: Request) {
       date: new Date(),
       note: note || '',
       payments: [],
+      createdBy: (session.user as any)?.id || null,
+      createdByName: session.user?.name || '',
     });
 
     return NextResponse.json({ success: true, nasiya });
