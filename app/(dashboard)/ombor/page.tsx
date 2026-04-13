@@ -335,7 +335,6 @@ export default function OmborPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [showHarakatTarixi, setShowHarakatTarixi] = useState(false);
-  const [showOmmaviyKirim, setShowOmmaviyKirim] = useState(false);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
@@ -433,11 +432,6 @@ export default function OmborPage() {
           onClose={() => setModalItem(false)} onSave={() => { setModalItem(false); load(); }} />
       )}
       {showHarakatTarixi && <HarakatTarixiModal onClose={() => setShowHarakatTarixi(false)} />}
-      {showOmmaviyKirim && (
-        <OmmaviyKirimModal items={items}
-          onClose={() => setShowOmmaviyKirim(false)}
-          onSaved={() => { setShowOmmaviyKirim(false); load(); }} />
-      )}
 
       <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="p-4 lg:p-6">
@@ -452,10 +446,6 @@ export default function OmborPage() {
             <button onClick={() => setShowHarakatTarixi(true)}
               className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               <History size={15} /> Harakat tarixi
-            </button>
-            <button onClick={() => setShowOmmaviyKirim(true)}
-              className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium border border-green-200 dark:border-green-700 rounded-lg bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors">
-              <PackagePlus size={15} /> Ommaviy kirim
             </button>
             <div className="flex-1" />
             <div className="flex gap-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5">
