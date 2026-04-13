@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { Plus, Trash2, X, Receipt } from 'lucide-react';
+import { getDynamicFontSize, formatNumber } from '@/lib/format';
 
 interface Expense {
   _id: string; title: string; amount: number; category: string;
@@ -116,7 +117,7 @@ export default function XarajatlarPage() {
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3">
               <p className="text-xs text-gray-500">Jami xarajat</p>
-              <p className="font-bold text-lg text-red-500 whitespace-nowrap">{total.toLocaleString('uz-UZ')} so'm</p>
+              <p className={`font-bold text-red-500 whitespace-nowrap ${getDynamicFontSize(total)}`}>{formatNumber(total)} so'm</p>
             </div>
             <button onClick={() => setShowAdd(true)}
               className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl whitespace-nowrap">
@@ -155,7 +156,7 @@ export default function XarajatlarPage() {
               <div key={e._id} className="p-4">
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <p className="font-medium text-gray-900 dark:text-white text-sm truncate flex-1 min-w-0">{e.title}</p>
-                  <span className="text-sm font-bold text-red-500 whitespace-nowrap flex-shrink-0">{e.amount.toLocaleString('uz-UZ')} so'm</span>
+                  <span className={`font-bold text-red-500 whitespace-nowrap flex-shrink-0 ${getDynamicFontSize(e.amount)}`}>{formatNumber(e.amount)} so'm</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-xs">{e.category}</span>
@@ -192,7 +193,7 @@ export default function XarajatlarPage() {
                   <tr key={e._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                     <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{e.title}</td>
                     <td className="px-4 py-3"><span className="px-2 py-0.5 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded text-xs">{e.category}</span></td>
-                    <td className="px-4 py-3 font-semibold text-red-500 whitespace-nowrap">{e.amount.toLocaleString('uz-UZ')}</td>
+                    <td className={`px-4 py-3 font-semibold text-red-500 whitespace-nowrap ${getDynamicFontSize(e.amount)}`}>{formatNumber(e.amount)}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs max-w-[120px] truncate">{e.note || '—'}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{new Date(e.date).toLocaleDateString('uz-UZ')}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{e.createdByName}</td>
