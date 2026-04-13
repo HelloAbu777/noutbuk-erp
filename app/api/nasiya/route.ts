@@ -37,3 +37,36 @@ export async function GET() {
 
   return NextResponse.json({ nasiyalar: updated, stats });
 }
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    const body = await req.json();
+    const { customerName, customerPhone, totalAmount, dueDate, note } = body;
+
+    if (!customerName || !customerPhone || !totalAmount) {
+      return NextResponse.json({ error: "Majburiy maydonlarni to'ldiring" }, { status: 400 });
+    }
+
+    await connectDB();
+
+    const nasiya = await Nasiya.create({
+      customerName,
+      customerPhone,
+      totalAmount: parseFloat(totalAmount),
+      paidAmount: 0,
+      remainingAmount: parseFloat(totalAmount),
+      dueDate: dueDate || null,
+      status: 'open',
+      date: new Date(),
+      note: note || '',
+      payments: [],
+    });
+
+    return NextResponse.json({ success: true, nasiya });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Server error' }, { status: 500 });
+  }
+}

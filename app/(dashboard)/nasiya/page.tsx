@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
-import { Search, X, CreditCard, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Search, X, CreditCard, AlertCircle, CheckCircle, Clock, Plus } from 'lucide-react';
 
 interface Payment { amount: number; date: string; note?: string; }
 interface Nasiya {
@@ -13,6 +13,85 @@ interface Nasiya {
   payments: Payment[];
 }
 interface Stats { total: number; open: number; overdue: number; paid: number; totalAmount: number; remainingAmount: number; }
+
+function AddNasiyaModal({ onClose, onSave }: { onClose: () => void; onSave: () => void }) {
+  const [form, setForm] = useState({ customerName: '', customerPhone: '', totalAmount: '', dueDate: '', note: '' });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleSave = async () => {
+    if (!form.customerName || !form.customerPhone || !form.totalAmount) {
+      setErr("Majburiy maydonlarni to'ldiring");
+      return;
+    }
+    setSaving(true);
+    const res = await fetch('/api/nasiya', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
+    if (!res.ok) {
+      const d = await res.json();
+      setErr(d.error || 'Xatolik');
+      setSaving(false);
+      return;
+    }
+    onSave();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Nasiya qo'shish</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400">
+            <X size={16} />
+          </button>
+        </div>
+        <div className="p-4 space-y-3">
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Mijoz ismi *</label>
+            <input value={form.customerName} onChange={e => setForm({ ...form, customerName: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Telefon *</label>
+            <input value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })}
+              placeholder="+998 90 123 45 67"
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Jami summa *</label>
+            <input type="number" value={form.totalAmount} onChange={e => setForm({ ...form, totalAmount: e.target.value })}
+              placeholder="0"
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">To'lov muddati</label>
+            <input type="date" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Izoh</label>
+            <textarea rows={2} value={form.note} onChange={e => setForm({ ...form, note: e.target.value })}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400 resize-none" />
+          </div>
+          {err && <p className="text-xs text-red-500">{err}</p>}
+          <div className="flex gap-2">
+            <button onClick={onClose}
+              className="flex-1 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">
+              Bekor qilish
+            </button>
+            <button onClick={handleSave} disabled={saving}
+              className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-medium rounded-lg text-sm">
+              {saving ? 'Saqlanmoqda...' : "Qo'shish"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function PayModal({ nasiya, onClose, onSave }: { nasiya: Nasiya; onClose: () => void; onSave: () => void }) {
   const [amount, setAmount] = useState('');
@@ -90,6 +169,7 @@ export default function NasiyaPage() {
   const [filter, setFilter] = useState<'all' | 'open' | 'overdue' | 'paid'>('all');
   const [search, setSearch] = useState('');
   const [payModal, setPayModal] = useState<Nasiya | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
@@ -116,6 +196,7 @@ export default function NasiyaPage() {
     <>
       <Header title="Nasiya" />
       {payModal && <PayModal nasiya={payModal} onClose={() => setPayModal(null)} onSave={() => { setPayModal(null); load(); }} />}
+      {showAddModal && <AddNasiyaModal onClose={() => setShowAddModal(false)} onSave={() => { setShowAddModal(false); load(); }} />}
       <div className="pt-14 min-h-screen pb-16 lg:pb-0 bg-gray-50 dark:bg-gray-950">
         <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
 
@@ -154,6 +235,10 @@ export default function NasiyaPage() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Ism yoki telefon..."
                 className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
             </div>
+            <button onClick={() => setShowAddModal(true)}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg whitespace-nowrap">
+              <Plus size={16} /> Nasiya qo'shish
+            </button>
           </div>
 
           {/* Mobile: cards */}
