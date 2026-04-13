@@ -463,6 +463,7 @@ function ProfilTab() {
 function ZaxiraTab() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [msg, setMsg] = useState('');
 
   const handleExport = async () => {
@@ -499,13 +500,38 @@ function ZaxiraTab() {
     if (fileRef.current) fileRef.current.value = '';
   };
 
+  const handleReset = async () => {
+    if (!confirm("⚠️ DIQQAT! Barcha kirim-chiqim ma'lumotlari o'chiriladi. Davom etasizmi?")) return;
+    if (!confirm("Bu amalni qaytarib bo'lmaydi! Tasdiqlaysizmi?")) return;
+    
+    setResetting(true);
+    try {
+      const res = await fetch('/api/sozlamalar/reset', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setMsg("✅ Barcha ma'lumotlar tozalandi");
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        setMsg(`❌ Xato: ${data.error}`);
+      }
+    } catch (error) {
+      setMsg('❌ Tarmoq xatosi');
+    }
+    setResetting(false);
+    setTimeout(() => setMsg(''), 4000);
+  };
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-2">Zaxira nusxa</h3>
         <p className="text-xs text-gray-500 mb-4">Barcha ma'lumotlarni JSON formatida yuklab oling yoki tiklang.</p>
         {msg && (
-          <div className="mb-3 px-3 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-xs text-green-600 dark:text-green-400">
+          <div className={`mb-3 px-3 py-2 border rounded-lg text-xs ${
+            msg.startsWith('✅') || msg.includes('yuklandi') || msg.includes('tiklandi')
+              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400'
+              : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
+          }`}>
             {msg}
           </div>
         )}
@@ -520,6 +546,18 @@ function ZaxiraTab() {
           </button>
           <input ref={fileRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
         </div>
+      </div>
+
+      <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 p-4 sm:p-5">
+        <h3 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">⚠️ Xavfli zona</h3>
+        <p className="text-xs text-red-600 dark:text-red-400 mb-4">
+          Barcha kirim-chiqim ma'lumotlarini o'chirish. Bu amalni qaytarib bo'lmaydi!
+        </p>
+        <button onClick={handleReset} disabled={resetting}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
+          <Database size={16} />
+          {resetting ? "O'chirilmoqda..." : "Barcha ma'lumotlarni 0 ga qaytarish"}
+        </button>
       </div>
     </div>
   );
