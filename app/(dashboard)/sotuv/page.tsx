@@ -1128,12 +1128,12 @@ export default function SotuvPage() {
               className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors flex-shrink-0">
               <ScanLine size={16} /> Kamera
             </button>
-            {/* Ochratlar indicator */}
+            {/* Ochratlar icon button */}
             <button
               onClick={() => setShowHeldOrders(true)}
-              className="relative flex items-center gap-2 px-4 py-2.5 border border-amber-300 dark:border-amber-600 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm font-medium rounded-lg transition-colors flex-shrink-0">
-              <Clock size={16} />
-              Ochratlar
+              title="Ochratlar"
+              className="relative p-2.5 border border-amber-300 dark:border-amber-600 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors flex-shrink-0">
+              <Clock size={18} />
               {heldOrders.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {heldOrders.length}
@@ -1226,19 +1226,20 @@ export default function SotuvPage() {
               <button
                 onClick={() => setShowReturnPanel(true)}
                 title="Bugungi sotuvlar / Qaytarish"
-                className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-600 px-2 py-1 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors">
-                <RotateCcw size={14} /> Qaytarish
+                className="p-2 text-orange-500 hover:text-orange-600 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors">
+                <RotateCcw size={16} />
               </button>
               {cart.length > 0 && (
                 <>
                   <button onClick={holdOrder}
                     title="Ochratga qo'yish"
-                    className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-600 px-2 py-1 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
-                    <PauseCircle size={14} /> Ushlab qo'y
+                    className="p-2 text-amber-500 hover:text-amber-600 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
+                    <PauseCircle size={16} />
                   </button>
                   <button onClick={clearCart}
-                    className="flex items-center gap-1 text-xs text-red-400 hover:text-red-500 px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                    <Trash2 size={13} />
+                    title="Savatni tozalash"
+                    className="p-2 text-red-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                    <Trash2 size={16} />
                   </button>
                 </>
               )}
