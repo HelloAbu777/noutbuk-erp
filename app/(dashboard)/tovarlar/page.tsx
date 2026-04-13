@@ -605,35 +605,32 @@ export default function TovarlarPage() {
                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-400" />
             </div>
 
-            {/* Harakat tarixi va Ommaviy kirim */}
-            <div className="flex gap-2">
-              <button onClick={() => setShowHarakatTarixi(true)}
-                className="flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">
-                <History size={15} /> Harakat tarixi
+            {/* Harakat tarixi */}
+            <button onClick={() => setShowHarakatTarixi(true)}
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors whitespace-nowrap">
+              <History size={15} /> Harakat tarixi
+            </button>
+
+            {/* Ommaviy kirim */}
+            <button onClick={() => setShowOmmaviyKirim(true)}
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-green-200 dark:border-green-700 rounded-xl bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors whitespace-nowrap">
+              <PackagePlus size={15} /> Ommaviy kirim
+            </button>
+
+            {/* Mahsulot qo'shish va View toggle */}
+            <button onClick={() => setModalProduct(null)}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap sm:ml-auto">
+              <Plus size={16} /> Mahsulot qo'shish
+            </button>
+
+            <div className="flex gap-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-0.5">
+              <button onClick={() => setViewMode('table')}
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'table' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}>
+                <LayoutList size={16} />
               </button>
-
-              <button onClick={() => setShowOmmaviyKirim(true)}
-                className="flex items-center justify-center gap-2 px-3.5 py-2.5 text-sm font-medium border border-green-200 dark:border-green-700 rounded-xl bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors whitespace-nowrap">
-                <PackagePlus size={15} /> Ommaviy kirim
-              </button>
-            </div>
-
-            {/* View toggle va Qo'shish */}
-            <div className="flex gap-2 sm:ml-auto">
-              <div className="flex gap-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-0.5">
-                <button onClick={() => setViewMode('table')}
-                  className={`p-1.5 rounded-md transition-colors ${viewMode === 'table' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}>
-                  <LayoutList size={16} />
-                </button>
-                <button onClick={() => setViewMode('card')}
-                  className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}>
-                  <LayoutGrid size={16} />
-                </button>
-              </div>
-
-              <button onClick={() => setModalProduct(null)}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap">
-                <Plus size={16} /> Mahsulot qo'shish
+              <button onClick={() => setViewMode('card')}
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}>
+                <LayoutGrid size={16} />
               </button>
             </div>
           </div>
