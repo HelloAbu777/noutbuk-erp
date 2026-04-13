@@ -12,12 +12,12 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { title: 'Bosh sahifa', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'kassir'] },
-  { title: 'Sotuv', href: '/sotuv', icon: ShoppingCart, roles: ['admin', 'kassir'] },
-  { title: 'Buyurtmalar', href: '/buyurtmalar', icon: ClipboardList, roles: ['admin', 'kassir'] },
-  { title: 'Tovarlar', href: '/tovarlar', icon: Package, roles: ['admin', 'kassir'] },
+  { title: 'Bosh sahifa', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'kassir', 'yordamchi'] },
+  { title: 'Sotuv', href: '/sotuv', icon: ShoppingCart, roles: ['admin', 'kassir', 'yordamchi'] },
+  { title: 'Buyurtmalar', href: '/buyurtmalar', icon: ClipboardList, roles: ['admin', 'kassir', 'yordamchi'] },
+  { title: 'Tovarlar', href: '/tovarlar', icon: Package, roles: ['admin', 'kassir', 'yordamchi'] },
   { title: 'Ombor', href: '/ombor', icon: Warehouse, roles: ['admin'] },
-  { title: 'Mijozlar', href: '/mijozlar', icon: Users, roles: ['admin', 'kassir'] },
+  { title: 'Mijozlar', href: '/mijozlar', icon: Users, roles: ['admin', 'kassir', 'yordamchi'] },
   { title: 'Nasiya', href: '/nasiya', icon: CreditCard, roles: ['admin', 'kassir'] },
   { title: "Ta'minotchilar", href: '/tamirotchilar', icon: Truck, roles: ['admin'] },
   { title: 'Xaridlar', href: '/xaridlar', icon: ShoppingBag, roles: ['admin'] },

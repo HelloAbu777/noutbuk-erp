@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
-import { Search, Plus, X, ShoppingCart } from 'lucide-react';
+import { Search, Plus, X, ShoppingCart, Trash2 } from 'lucide-react';
 
 interface Supplier { _id: string; companyName: string; }
 interface Purchase {
@@ -139,6 +139,12 @@ export default function XaridlarPage() {
   };
   useEffect(() => { if (status === 'authenticated') load(); }, [status]);
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Xaridni qaytarishni tasdiqlaysizmi? Bu amal ombor va ta'minotchi hisoblarini ham yangilaydi.")) return;
+    await fetch(`/api/xaridlar/${id}`, { method: 'DELETE' });
+    load();
+  };
+
   const filtered = purchases.filter(p =>
     p.productName.toLowerCase().includes(search.toLowerCase()) ||
     p.supplierName.toLowerCase().includes(search.toLowerCase())
@@ -225,8 +231,15 @@ export default function XaridlarPage() {
                 </div>
                 {/* Footer */}
                 <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-100 dark:border-gray-800">
-                  <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(p.date).toLocaleDateString('uz-UZ')}</span>
-                  <span className="text-xs text-gray-400 truncate ml-2">{p.createdByName}</span>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(p.date).toLocaleDateString('uz-UZ')}</span>
+                    <span className="text-xs text-gray-400 truncate">{p.createdByName}</span>
+                  </div>
+                  <button onClick={() => handleDelete(p._id)}
+                    className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                    title="Qaytarish">
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -236,15 +249,15 @@ export default function XaridlarPage() {
           <div className="hidden sm:block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                <tr>{["Mahsulot", "Ta'minotchi", "Kategoriya", "Soni", "Narxi", "Jami", "To'langan", "Sana", "Mas'ul"].map(h => (
+                <tr>{["Mahsulot", "Ta'minotchi", "Kategoriya", "Soni", "Narxi", "Jami", "To'langan", "Sana", "Mas'ul", ""].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}</tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                 {loading ? Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}><td colSpan={9}><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mx-4 my-3" /></td></tr>
+                  <tr key={i}><td colSpan={10}><div className="h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mx-4 my-3" /></td></tr>
                 )) : filtered.length === 0 ? (
-                  <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">
+                  <tr><td colSpan={10} className="px-4 py-12 text-center text-gray-400">
                     <ShoppingCart size={36} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Xarid topilmadi</p>
                   </td></tr>
@@ -259,6 +272,13 @@ export default function XaridlarPage() {
                     <td className="px-4 py-3 text-green-600 whitespace-nowrap">{p.paidAmount.toLocaleString('uz-UZ')}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{new Date(p.date).toLocaleDateString('uz-UZ')}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{p.createdByName}</td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => handleDelete(p._id)}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Qaytarish">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
