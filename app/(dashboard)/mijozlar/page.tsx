@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { Search, Plus, Users, X, Pencil, Trash2, Send } from 'lucide-react';
+import { getDynamicFontSize, formatNumber } from '@/lib/format';
 
 interface Customer {
   _id: string; name: string; phone: string; address?: string;
@@ -247,7 +248,7 @@ export default function MijozlarPage() {
                       : <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-400">— TG</span>
                     }
                     {c.debt > 0
-                      ? <span className="text-xs font-bold text-red-500 whitespace-nowrap">{c.debt.toLocaleString('uz-UZ')} so'm</span>
+                      ? <span className={`font-bold text-red-500 whitespace-nowrap ${getDynamicFontSize(c.debt)}`}>{formatNumber(c.debt)} so'm</span>
                       : <span className="text-xs text-green-600 font-medium">✅ 0</span>
                     }
                   </div>
@@ -301,7 +302,7 @@ export default function MijozlarPage() {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {c.debt > 0
-                          ? <span className="text-red-500 font-semibold">🔴 {c.debt.toLocaleString('uz-UZ')}</span>
+                          ? <span className={`text-red-500 font-semibold ${getDynamicFontSize(c.debt)}`}>🔴 {formatNumber(c.debt)}</span>
                           : <span className="text-green-600 text-xs">✅ 0</span>}
                       </td>
                       <td className="px-4 py-3">

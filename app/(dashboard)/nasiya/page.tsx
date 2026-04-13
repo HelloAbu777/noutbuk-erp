@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { Search, X, CreditCard, AlertCircle, CheckCircle, Clock, Plus } from 'lucide-react';
+import { getDynamicFontSize, formatNumber } from '@/lib/format';
 
 interface Payment { amount: number; date: string; note?: string; }
 interface Nasiya {
@@ -264,15 +265,15 @@ export default function NasiyaPage() {
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400">Jami</p>
-                    <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight mt-0.5">{n.totalAmount.toLocaleString('uz-UZ')}</p>
+                    <p className={`font-bold text-gray-900 dark:text-white leading-tight mt-0.5 ${getDynamicFontSize(n.totalAmount)}`}>{formatNumber(n.totalAmount)}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400">To'langan</p>
-                    <p className="text-xs font-bold text-green-600 leading-tight mt-0.5">{n.paidAmount.toLocaleString('uz-UZ')}</p>
+                    <p className={`font-bold text-green-600 leading-tight mt-0.5 ${getDynamicFontSize(n.paidAmount)}`}>{formatNumber(n.paidAmount)}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                     <p className="text-xs text-gray-400">Qoldiq</p>
-                    <p className="text-xs font-bold text-red-500 leading-tight mt-0.5">{n.remainingAmount.toLocaleString('uz-UZ')}</p>
+                    <p className={`font-bold text-red-500 leading-tight mt-0.5 ${getDynamicFontSize(n.remainingAmount)}`}>{formatNumber(n.remainingAmount)}</p>
                   </div>
                 </div>
                 {/* Action — always same height */}
@@ -313,9 +314,9 @@ export default function NasiyaPage() {
                     <tr key={n._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                       <td className="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">{n.customerName}</td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{n.customerPhone}</td>
-                      <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">{n.totalAmount.toLocaleString('uz-UZ')}</td>
-                      <td className="px-4 py-3 text-green-600 whitespace-nowrap">{n.paidAmount.toLocaleString('uz-UZ')}</td>
-                      <td className="px-4 py-3 font-semibold text-red-500 whitespace-nowrap">{n.remainingAmount.toLocaleString('uz-UZ')}</td>
+                      <td className={`px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap ${getDynamicFontSize(n.totalAmount)}`}>{formatNumber(n.totalAmount)}</td>
+                      <td className={`px-4 py-3 text-green-600 whitespace-nowrap ${getDynamicFontSize(n.paidAmount)}`}>{formatNumber(n.paidAmount)}</td>
+                      <td className={`px-4 py-3 font-semibold text-red-500 whitespace-nowrap ${getDynamicFontSize(n.remainingAmount)}`}>{formatNumber(n.remainingAmount)}</td>
                       <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{new Date(n.date).toLocaleDateString('uz-UZ')}</td>
                       <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{n.dueDate ? new Date(n.dueDate).toLocaleDateString('uz-UZ') : '—'}</td>
                       <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${STATUS_COLORS[n.status]}`}>{STATUS_LABELS[n.status]}</span></td>

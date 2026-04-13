@@ -7,6 +7,7 @@ import {
   Search, Plus, Pencil, Trash2, X, Users,
   Phone, MapPin, Briefcase, Calendar, CreditCard, FileText, ChevronRight
 } from 'lucide-react';
+import { getDynamicFontSize, formatNumber } from '@/lib/format';
 
 const POSITIONS = ['Sotuvchi', 'Kassa', 'Manager', 'Ombor', 'Yuk tashuvchi', 'Texnik', 'Boshqa'];
 
@@ -310,11 +311,11 @@ export default function IshchilarPage() {
               { label: 'Jami ishchilar', value: workers.length, color: 'text-gray-900 dark:text-white' },
               { label: 'Faol', value: active, color: 'text-green-600' },
               { label: 'Nofaol', value: workers.length - active, color: 'text-gray-400' },
-              { label: 'Jami oylik', value: totalSalary ? `${totalSalary.toLocaleString('uz-UZ')} so'm` : '—', color: 'text-blue-600' },
+              { label: 'Jami oylik', value: totalSalary ? `${formatNumber(totalSalary)} so'm` : '—', color: 'text-blue-600', fontSize: getDynamicFontSize(totalSalary) },
             ].map((s, i) => (
               <div key={i} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 px-4 py-3">
                 <p className="text-xs text-gray-500 mb-1 truncate">{s.label}</p>
-                <p className={`font-bold text-lg truncate ${s.color}`}>{s.value}</p>
+                <p className={`font-bold truncate ${s.fontSize || 'text-lg'} ${s.color}`}>{s.value}</p>
               </div>
             ))}
           </div>
@@ -430,8 +431,8 @@ export default function IshchilarPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{w.phone}</td>
-                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                        {w.salary ? `${w.salary.toLocaleString('uz-UZ')} so'm` : '—'}
+                      <td className={`px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap ${w.salary ? getDynamicFontSize(w.salary) : ''}`}>
+                        {w.salary ? `${formatNumber(w.salary)} so'm` : '—'}
                       </td>
                       <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
                         {w.hireDate ? new Date(w.hireDate).toLocaleDateString('uz-UZ') : '—'}
