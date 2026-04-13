@@ -569,8 +569,10 @@ export default function OmborPage() {
                           </div>
                         </div>
                         <p className={`text-gray-400 mb-0.5 truncate ${buyPriceStr.length > 15 ? 'text-[10px]' : 'text-xs'}`}>Sotib: {buyPriceStr}</p>
-                        <p className={`font-bold text-gray-900 dark:text-white truncate ${sellPriceStr.length > 15 ? 'text-[10px]' : sellPriceStr.length > 10 ? 'text-xs' : 'text-sm'}`}>{sellPriceStr}</p>
-                        {item.supplierName && <p className="text-[10px] text-gray-400 mt-0.5 truncate h-4">{item.supplierName}</p>}
+                        <p className={`font-bold text-gray-900 dark:text-white truncate mb-1 ${sellPriceStr.length > 15 ? 'text-[10px]' : sellPriceStr.length > 10 ? 'text-xs' : 'text-sm'}`}>{sellPriceStr}</p>
+                        <div className="h-4">
+                          {item.supplierName && <p className="text-[10px] text-gray-400 truncate">{item.supplierName}</p>}
+                        </div>
                       </div>
                       <div className="p-3 pt-0 mt-2 border-t border-gray-100 dark:border-gray-700">
                         <ActionBtns item={item} />
