@@ -442,20 +442,20 @@ export default function OmborPage() {
 
           {/* Toolbar */}
           <div className="space-y-3 mb-6">
-            {/* Search - to'liq kenglikda */}
+            {/* Search */}
             <div className="relative">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..."
                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-400" />
             </div>
 
-            {/* Harakat tarixi - to'liq kenglikda */}
+            {/* Harakat tarixi - smartfonda to'liq, desktop'da auto */}
             <button onClick={() => setShowHarakatTarixi(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              className="w-full lg:w-auto flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               <History size={15} /> Harakat tarixi
             </button>
 
-            {/* Mahsulot qo'shish va Toggle */}
+            {/* Toggle va Mahsulot qo'shish */}
             <div className="flex gap-2">
               <div className="flex gap-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-0.5">
                 <button onClick={() => setViewMode('table')} className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}><LayoutList size={16} /></button>

@@ -598,15 +598,15 @@ export default function TovarlarPage() {
 
           {/* Toolbar */}
           <div className="space-y-3 mb-6">
-            {/* Search - to'liq kenglikda */}
+            {/* Search */}
             <div className="relative">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..."
                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-400" />
             </div>
 
-            {/* Tugmalar - grid bilan yonma-yon */}
-            <div className="grid grid-cols-2 gap-2">
+            {/* Harakat tarixi va Ommaviy kirim - smartfonda 50/50, desktop'da auto */}
+            <div className="grid grid-cols-2 lg:flex gap-2">
               <button onClick={() => setShowHarakatTarixi(true)}
                 className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 <History size={15} /> Harakat tarixi
@@ -618,7 +618,7 @@ export default function TovarlarPage() {
               </button>
             </div>
 
-            {/* Mahsulot qo'shish va Toggle */}
+            {/* Toggle va Mahsulot qo'shish */}
             <div className="flex gap-2">
               <div className="flex gap-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-0.5">
                 <button onClick={() => setViewMode('table')}
