@@ -9,7 +9,8 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
     "reset": "tsx scripts/reset-data.ts",
-    "set-quantity": "tsx scripts/set-quantity.ts"
+    "set-quantity": "tsx scripts/set-quantity.ts",
+    "fix-products": "tsx scripts/fix-archived-products.ts"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.2.0",

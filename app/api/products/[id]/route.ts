@@ -22,6 +22,10 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
   const { id } = await params;
   await connectDB();
-  await Product.findByIdAndUpdate(id, { status: 'archived' });
+  
+  // Permanently delete from database instead of archiving
+  const product = await Product.findByIdAndDelete(id);
+  if (!product) return NextResponse.json({ error: 'Topilmadi' }, { status: 404 });
+  
   return NextResponse.json({ success: true });
 }
