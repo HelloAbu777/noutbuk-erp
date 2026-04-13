@@ -162,7 +162,7 @@ export default function XarajatlarPage() {
                   <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(e.date).toLocaleDateString('uz-UZ')}</span>
                   {e.note && <span className="text-xs text-gray-400 truncate">{e.note}</span>}
                 </div>
-                <div className="flex items-center justify-end gap-1 mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-around mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800">
                   <button onClick={() => remove(e._id)}
                     className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
                     <Trash2 size={15} />

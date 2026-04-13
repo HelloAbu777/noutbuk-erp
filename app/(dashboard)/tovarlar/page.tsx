@@ -558,7 +558,7 @@ export default function TovarlarPage() {
 
   // Action buttons shared between table and card
   const ActionBtns = ({ p }: { p: Product }) => (
-    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+    <div className="flex items-center justify-around" onClick={e => e.stopPropagation()}>
       <button onClick={() => setBarcodeProduct(p)} title="Shtrix kod"
         className="p-1.5 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-500/10 text-gray-400 hover:text-purple-500 transition-colors">
         <Barcode size={14} />

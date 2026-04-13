@@ -408,7 +408,7 @@ export default function OmborPage() {
   if (status === 'loading') return null;
 
   const ActionBtns = ({ item }: { item: WItem }) => (
-    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+    <div className="flex items-center justify-around" onClick={e => e.stopPropagation()}>
       {item.status === 'in_warehouse' && (
         <button onClick={() => sendToShop(item._id)} disabled={sending === item._id}
           title="Do'konga chiqarish"

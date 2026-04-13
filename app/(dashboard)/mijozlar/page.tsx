@@ -253,7 +253,7 @@ export default function MijozlarPage() {
                   </div>
                 </div>
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-1 pt-2.5 mt-2.5 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center justify-around pt-2.5 mt-2.5 border-t border-gray-100 dark:border-gray-800">
                   <button onClick={() => setSendModal(c)}
                     className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-500 transition-colors">
                     <Send size={15} />
