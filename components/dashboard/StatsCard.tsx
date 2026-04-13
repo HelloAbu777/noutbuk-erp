@@ -22,6 +22,14 @@ export default function StatsCard({ title, value, color, icon }: StatsCardProps)
     red: 'text-red-500 dark:text-red-400',
   };
 
+  // Dynamic font sizing based on number length
+  const digitCount = Math.abs(value).toString().length;
+  const getFontSize = () => {
+    if (digitCount >= 15) return 'text-xs sm:text-sm';
+    if (digitCount >= 10) return 'text-sm sm:text-base';
+    return 'text-base sm:text-xl';
+  };
+
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 sm:p-5">
       {/* Icon + title row */}
@@ -32,7 +40,7 @@ export default function StatsCard({ title, value, color, icon }: StatsCardProps)
         </div>
       </div>
       {/* Value */}
-      <p className={`text-base sm:text-xl font-bold leading-tight ${valueColor[color]}`}>
+      <p className={`font-bold leading-tight ${getFontSize()} ${valueColor[color]}`}>
         {formatSum(value)}
       </p>
       <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">so'm</p>
