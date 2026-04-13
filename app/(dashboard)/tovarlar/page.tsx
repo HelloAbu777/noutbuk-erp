@@ -723,6 +723,10 @@ export default function TovarlarPage() {
                 {filtered.map(p => {
                   const isSelected = selectedIds.has(p._id);
                   const wQty = warehouseMap[p.name.trim().toLowerCase()] ?? 0;
+                  const qtyStr = p.quantity.toString();
+                  const wQtyStr = wQty.toString();
+                  const buyPriceStr = p.buyPrice.toLocaleString('uz-UZ');
+                  const sellPriceStr = p.sellPrice.toLocaleString('uz-UZ');
                   return (
                     <div key={p._id} onClick={() => toggleOne(p._id)}
                       className={`relative rounded-xl border cursor-pointer transition-all flex flex-col ${
@@ -738,17 +742,17 @@ export default function TovarlarPage() {
                         <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2 self-start">{p.category}</span>
                         {/* Qty badges */}
                         <div className="flex gap-1.5 mb-2">
-                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center">
+                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center overflow-hidden">
                             <p className="text-xs text-gray-400 leading-tight">Do'kon</p>
-                            <p className={`text-sm font-bold truncate ${p.quantity === 0 ? 'text-red-500' : p.quantity < 5 ? 'text-amber-500' : 'text-green-600'}`}>{p.quantity}</p>
+                            <p className={`font-bold truncate ${qtyStr.length > 8 ? 'text-[10px]' : qtyStr.length > 5 ? 'text-xs' : 'text-sm'} ${p.quantity === 0 ? 'text-red-500' : p.quantity < 5 ? 'text-amber-500' : 'text-green-600'}`}>{p.quantity}</p>
                           </div>
-                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center">
+                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center overflow-hidden">
                             <p className="text-xs text-gray-400 leading-tight">Ombor</p>
-                            <p className={`text-sm font-bold truncate ${wQty === 0 ? 'text-gray-300 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400'}`}>{wQty}</p>
+                            <p className={`font-bold truncate ${wQtyStr.length > 8 ? 'text-[10px]' : wQtyStr.length > 5 ? 'text-xs' : 'text-sm'} ${wQty === 0 ? 'text-gray-300 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400'}`}>{wQty}</p>
                           </div>
                         </div>
-                        <p className="text-xs text-gray-400 mb-0.5 truncate">Sotib: {p.buyPrice.toLocaleString('uz-UZ')}</p>
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{p.sellPrice.toLocaleString('uz-UZ')}</p>
+                        <p className={`text-gray-400 mb-0.5 truncate ${buyPriceStr.length > 15 ? 'text-[10px]' : 'text-xs'}`}>Sotib: {buyPriceStr}</p>
+                        <p className={`font-bold text-gray-900 dark:text-white truncate ${sellPriceStr.length > 15 ? 'text-[10px]' : sellPriceStr.length > 10 ? 'text-xs' : 'text-sm'}`}>{sellPriceStr}</p>
                         {p.barcode && <p className="text-[10px] text-gray-400 font-mono mt-1 truncate h-4">{p.barcode}</p>}
                       </div>
                       <div className="p-3 pt-0 mt-2 border-t border-gray-100 dark:border-gray-700">

@@ -538,6 +538,10 @@ export default function OmborPage() {
                 {filtered.map(item => {
                   const isSelected = selectedIds.has(item._id);
                   const sQty = storeMap[item.name.trim().toLowerCase()] ?? 0;
+                  const qtyStr = item.quantity.toString();
+                  const sQtyStr = sQty.toString();
+                  const buyPriceStr = item.buyPrice.toLocaleString('uz-UZ');
+                  const sellPriceStr = item.sellPrice.toLocaleString('uz-UZ');
                   return (
                     <div key={item._id} onClick={() => toggleOne(item._id)}
                       className={`relative rounded-xl border cursor-pointer transition-all flex flex-col ${isSelected ? 'border-blue-400 bg-blue-50 dark:bg-blue-500/10 shadow-sm' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-blue-300 hover:shadow-sm'}`}>
@@ -553,17 +557,17 @@ export default function OmborPage() {
                         <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1 h-8">{item.name}</p>
                         <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2 self-start">{item.category}</span>
                         <div className="flex gap-1.5 mb-2">
-                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center">
+                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center overflow-hidden">
                             <p className="text-xs text-gray-400 leading-tight">Ombor</p>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{item.quantity}</p>
+                            <p className={`font-bold text-gray-900 dark:text-white truncate ${qtyStr.length > 8 ? 'text-[10px]' : qtyStr.length > 5 ? 'text-xs' : 'text-sm'}`}>{item.quantity}</p>
                           </div>
-                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center">
+                          <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center overflow-hidden">
                             <p className="text-xs text-gray-400 leading-tight">Do'kon</p>
-                            <p className={`text-sm font-bold truncate ${sQty === 0 ? 'text-gray-300 dark:text-gray-600' : sQty < 5 ? 'text-amber-500' : 'text-green-600 dark:text-green-400'}`}>{sQty}</p>
+                            <p className={`font-bold truncate ${sQtyStr.length > 8 ? 'text-[10px]' : sQtyStr.length > 5 ? 'text-xs' : 'text-sm'} ${sQty === 0 ? 'text-gray-300 dark:text-gray-600' : sQty < 5 ? 'text-amber-500' : 'text-green-600 dark:text-green-400'}`}>{sQty}</p>
                           </div>
                         </div>
-                        <p className="text-xs text-gray-400 mb-0.5 truncate">Sotib: {item.buyPrice.toLocaleString('uz-UZ')}</p>
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{item.sellPrice.toLocaleString('uz-UZ')}</p>
+                        <p className={`text-gray-400 mb-0.5 truncate ${buyPriceStr.length > 15 ? 'text-[10px]' : 'text-xs'}`}>Sotib: {buyPriceStr}</p>
+                        <p className={`font-bold text-gray-900 dark:text-white truncate ${sellPriceStr.length > 15 ? 'text-[10px]' : sellPriceStr.length > 10 ? 'text-xs' : 'text-sm'}`}>{sellPriceStr}</p>
                         {item.supplierName && <p className="text-[10px] text-gray-400 mt-0.5 truncate h-4">{item.supplierName}</p>}
                       </div>
                       <div className="p-3 pt-0 mt-2 border-t border-gray-100 dark:border-gray-700">
