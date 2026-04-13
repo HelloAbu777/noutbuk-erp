@@ -540,7 +540,7 @@ export default function OmborPage() {
                   const sQty = storeMap[item.name.trim().toLowerCase()] ?? 0;
                   return (
                     <div key={item._id} onClick={() => toggleOne(item._id)}
-                      className={`relative rounded-xl border cursor-pointer transition-all ${isSelected ? 'border-blue-400 bg-blue-50 dark:bg-blue-500/10 shadow-sm' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-blue-300 hover:shadow-sm'}`}>
+                      className={`relative rounded-xl border cursor-pointer transition-all flex flex-col ${isSelected ? 'border-blue-400 bg-blue-50 dark:bg-blue-500/10 shadow-sm' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-blue-300 hover:shadow-sm'}`}>
                       <div className="absolute top-2 left-2" onClick={e => e.stopPropagation()}>
                         <input type="checkbox" checked={isSelected} onChange={() => toggleOne(item._id)}
                           className="w-4 h-4 rounded border-gray-300 accent-blue-500 cursor-pointer" />
@@ -549,25 +549,25 @@ export default function OmborPage() {
                       <span className={`absolute top-2 right-2 text-xs font-medium px-1.5 py-0.5 rounded ${item.status === 'sent_to_shop' ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'}`}>
                         {item.status === 'sent_to_shop' ? 'Chiqarilgan' : 'Omborda'}
                       </span>
-                      <div className="p-3 pt-8">
-                        <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1">{item.name}</p>
-                        <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2">{item.category}</span>
+                      <div className="p-3 pt-8 flex-1 flex flex-col">
+                        <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-2 mb-1 h-8">{item.name}</p>
+                        <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2 self-start">{item.category}</span>
                         <div className="flex gap-1.5 mb-2">
                           <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center">
                             <p className="text-xs text-gray-400 leading-tight">Ombor</p>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">{item.quantity}</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{item.quantity}</p>
                           </div>
                           <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-1.5 text-center">
                             <p className="text-xs text-gray-400 leading-tight">Do'kon</p>
-                            <p className={`text-sm font-bold ${sQty === 0 ? 'text-gray-300 dark:text-gray-600' : sQty < 5 ? 'text-amber-500' : 'text-green-600 dark:text-green-400'}`}>{sQty}</p>
+                            <p className={`text-sm font-bold truncate ${sQty === 0 ? 'text-gray-300 dark:text-gray-600' : sQty < 5 ? 'text-amber-500' : 'text-green-600 dark:text-green-400'}`}>{sQty}</p>
                           </div>
                         </div>
-                        <p className="text-xs text-gray-400 mb-0.5">Sotib: {item.buyPrice.toLocaleString('uz-UZ')}</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{item.sellPrice.toLocaleString('uz-UZ')}</p>
-                        {item.supplierName && <p className="text-xs text-gray-400 mt-0.5">{item.supplierName}</p>}
-                        <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                          <ActionBtns item={item} />
-                        </div>
+                        <p className="text-xs text-gray-400 mb-0.5 truncate">Sotib: {item.buyPrice.toLocaleString('uz-UZ')}</p>
+                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{item.sellPrice.toLocaleString('uz-UZ')}</p>
+                        {item.supplierName && <p className="text-[10px] text-gray-400 mt-0.5 truncate h-4">{item.supplierName}</p>}
+                      </div>
+                      <div className="p-3 pt-0 mt-2 border-t border-gray-100 dark:border-gray-700">
+                        <ActionBtns item={item} />
                       </div>
                     </div>
                   );
