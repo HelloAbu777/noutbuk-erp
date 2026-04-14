@@ -105,7 +105,14 @@ function SendModal({ onClose, onSave }: { onClose: () => void; onSave: () => voi
           </div>
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Telefon *</label>
-            <input value={form.customerPhone} onChange={e => setForm(f => ({ ...f, customerPhone: e.target.value }))}
+            <input 
+              type="tel"
+              value={form.customerPhone} 
+              onChange={e => {
+                const value = e.target.value.replace(/[^0-9+]/g, '');
+                setForm(f => ({ ...f, customerPhone: value }));
+              }}
+              placeholder="+998901234567"
               className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
           </div>
           <div>

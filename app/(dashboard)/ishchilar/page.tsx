@@ -101,8 +101,14 @@ function WorkerModal({ worker, onClose, onSave }: {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Telefon *</label>
-                  <input value={form.phone} onChange={e => set('phone', e.target.value)}
-                    placeholder="+998 90 000 00 00"
+                  <input 
+                    type="tel"
+                    value={form.phone} 
+                    onChange={e => {
+                      const value = e.target.value.replace(/[^0-9+]/g, '');
+                      set('phone', value);
+                    }}
+                    placeholder="+998901234567"
                     className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
                 </div>
                 <div>
