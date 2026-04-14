@@ -562,6 +562,7 @@ function ZaxiraTab() {
   const [resetting, setResetting] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [updatingBarcodes, setUpdatingBarcodes] = useState(false);
   const [msg, setMsg] = useState('');
 
   const handleExport = async () => {
@@ -658,6 +659,26 @@ function ZaxiraTab() {
     setTimeout(() => setMsg(''), 5000);
   };
 
+  const handleUpdateBarcodes = async () => {
+    if (!confirm("Barcha mahsulotlarga 6 raqamli barkod berilsinmi? (000001, 000002, ...)")) return;
+    
+    setUpdatingBarcodes(true);
+    setMsg('🔄 Barkodlar yangilanmoqda...');
+    try {
+      const res = await fetch('/api/update-barcodes', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setMsg(`✅ Barkodlar yangilandi! ${data.updated} ta mahsulot, ${data.skipped} ta o'tkazildi`);
+      } else {
+        setMsg(`❌ Xato: ${data.error}`);
+      }
+    } catch (error) {
+      setMsg('❌ Tarmoq xatosi');
+    }
+    setUpdatingBarcodes(false);
+    setTimeout(() => setMsg(''), 5000);
+  };
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 p-4 sm:p-5">
@@ -708,6 +729,18 @@ function ZaxiraTab() {
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
           <Database size={16} />
           {seeding ? "Qo'shilmoqda..." : "Demo ma'lumotlar qo'shish"}
+        </button>
+      </div>
+
+      <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800 p-4 sm:p-5">
+        <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-2">🏷️ Barkodlarni yangilash</h3>
+        <p className="text-xs text-purple-600 dark:text-purple-400 mb-4">
+          Barcha mahsulotlarga 6 raqamli barkod bering (000001, 000002, ...). Mavjud 6 raqamli barkodlar o'zgartirilmaydi.
+        </p>
+        <button onClick={handleUpdateBarcodes} disabled={updatingBarcodes}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
+          <Database size={16} />
+          {updatingBarcodes ? "Yangilanmoqda..." : "Barkodlarni yangilash"}
         </button>
       </div>
 
