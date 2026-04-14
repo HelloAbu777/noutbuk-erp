@@ -9,6 +9,7 @@ import { Search, Plus, Pencil, Trash2, X, Truck, ShoppingCart } from 'lucide-rea
 interface Supplier {
   _id: string; companyName: string; contactPerson: string; phone: string;
   address?: string; totalPurchased: number; totalPaid: number; status: string;
+  createdAt: string;
 }
 
 const CATS = ['Noutbuk', 'Aksessuar', 'Telefon', 'Boshqa'];
