@@ -39,13 +39,26 @@ function Modal({ supplier, onClose, onSave }: { supplier: Partial<Supplier> | nu
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400"><X size={16} /></button>
         </div>
         <div className="p-4 space-y-3">
-          {([['companyName', "Kompaniya nomi *"], ['contactPerson', "Mas'ul shaxs"], ['phone', "Telefon *"], ['address', "Manzil"]] as const).map(([k, l]) => (
+          {([['companyName', "Kompaniya nomi *"], ['contactPerson', "Mas'ul shaxs"], ['address', "Manzil"]] as const).map(([k, l]) => (
             <div key={k}>
               <label className="text-xs text-gray-500 mb-1 block">{l}</label>
               <input value={form[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
             </div>
           ))}
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Telefon *</label>
+            <input 
+              type="tel"
+              value={form.phone} 
+              onChange={e => {
+                const value = e.target.value.replace(/[^0-9+]/g, '');
+                setForm(f => ({ ...f, phone: value }));
+              }}
+              placeholder="+998901234567"
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" 
+            />
+          </div>
           {err && <p className="text-xs text-red-500">{err}</p>}
           <button onClick={handleSubmit} disabled={saving}
             className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-medium rounded-lg text-sm">
