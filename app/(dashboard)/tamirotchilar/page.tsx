@@ -4,12 +4,14 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import SupplierProfileModal from '@/components/SupplierProfileModal';
-import { Search, Plus, Pencil, Trash2, X, Truck } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, X, Truck, ShoppingCart } from 'lucide-react';
 
 interface Supplier {
   _id: string; companyName: string; contactPerson: string; phone: string;
   address?: string; totalPurchased: number; totalPaid: number; status: string;
 }
+
+const CATS = ['Noutbuk', 'Aksessuar', 'Telefon', 'Boshqa'];
 
 function Modal({ supplier, onClose, onSave }: { supplier: Partial<Supplier> | null; onClose: () => void; onSave: () => void }) {
   const isEdit = !!supplier?._id;
@@ -71,6 +73,110 @@ function Modal({ supplier, onClose, onSave }: { supplier: Partial<Supplier> | nu
   );
 }
 
+function PurchaseModal({ onClose, onSave }: { onClose: () => void; onSave: () => void }) {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [form, setForm] = useState({
+    supplierId: '', supplierName: '', productName: '', category: 'Noutbuk',
+    quantity: '', buyPrice: '', sellPrice: '', paidAmount: '', note: '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    fetch('/api/tamirotchilar').then(r => r.json()).then(d => setSuppliers(Array.isArray(d) ? d : []));
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!form.productName || !form.buyPrice || !form.sellPrice || !form.quantity) {
+      setErr("Majburiy maydonlar to'ldirilmadi"); return;
+    }
+    setSaving(true);
+    const body = {
+      supplierId: form.supplierId || undefined,
+      supplierName: form.supplierName || (suppliers.find(s => s._id === form.supplierId)?.companyName || 'Noma\'lum'),
+      productName: form.productName,
+      category: form.category,
+      quantity: parseInt(form.quantity),
+      buyPrice: parseFloat(form.buyPrice),
+      sellPrice: parseFloat(form.sellPrice),
+      paidAmount: parseFloat(form.paidAmount) || 0,
+      note: form.note,
+    };
+    const res = await fetch('/api/xaridlar', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) { const d = await res.json(); setErr(d.error || 'Xatolik'); setSaving(false); return; }
+    onSave();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-900">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Yangi xarid</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400"><X size={16} /></button>
+        </div>
+        <div className="p-4 space-y-3">
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Ta'minotchi</label>
+            <select value={form.supplierId} onChange={e => {
+              const s = suppliers.find(s => s._id === e.target.value);
+              setForm(f => ({ ...f, supplierId: e.target.value, supplierName: s?.companyName || '' }));
+            }} className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400">
+              <option value="">— Tanlang —</option>
+              {suppliers.map(s => <option key={s._id} value={s._id}>{s.companyName}</option>)}
+            </select>
+          </div>
+          {!form.supplierId && (
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Ta'minotchi ismi (qo'lda)</label>
+              <input value={form.supplierName} onChange={e => setForm(f => ({ ...f, supplierName: e.target.value }))}
+                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+            </div>
+          )}
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Mahsulot nomi *</label>
+            <input value={form.productName} onChange={e => setForm(f => ({ ...f, productName: e.target.value }))}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Kategoriya</label>
+            <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400">
+              {CATS.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {([['quantity', 'Soni *'], ['buyPrice', 'Sotib olish *'], ['sellPrice', 'Sotuv narxi *']] as const).map(([k, l]) => (
+              <div key={k}>
+                <label className="text-xs text-gray-500 mb-1 block">{l}</label>
+                <input type="number" value={form[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+              </div>
+            ))}
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">To'langan summa</label>
+            <input type="number" value={form.paidAmount} onChange={e => setForm(f => ({ ...f, paidAmount: e.target.value }))}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Izoh</label>
+            <input value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          {err && <p className="text-xs text-red-500">{err}</p>}
+          <button onClick={handleSubmit} disabled={saving}
+            className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-medium rounded-lg text-sm">
+            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TamirotchilarPage() {
   const { status } = useSession();
   const router = useRouter();
@@ -78,6 +184,7 @@ export default function TamirotchilarPage() {
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<Partial<Supplier> | null | false>(false);
   const [profileModal, setProfileModal] = useState<Supplier | null>(null);
+  const [purchaseModal, setPurchaseModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
@@ -108,6 +215,9 @@ export default function TamirotchilarPage() {
       {profileModal && (
         <SupplierProfileModal supplier={profileModal} onClose={() => setProfileModal(null)} />
       )}
+      {purchaseModal && (
+        <PurchaseModal onClose={() => setPurchaseModal(false)} onSave={() => { setPurchaseModal(false); load(); }} />
+      )}
       <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="p-4 lg:p-6">
           {/* Toolbar */}
@@ -117,10 +227,16 @@ export default function TamirotchilarPage() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..."
                 className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
             </div>
-            <button onClick={() => setModal({})}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl whitespace-nowrap">
-              <Plus size={16} /> Qo'shish
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setPurchaseModal(true)}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-xl whitespace-nowrap">
+                <ShoppingCart size={16} /> Xarid qo'shish
+              </button>
+              <button onClick={() => setModal({})}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl whitespace-nowrap">
+                <Plus size={16} /> Ta'minotchi
+              </button>
+            </div>
           </div>
 
           {/* Mobile: card list */}

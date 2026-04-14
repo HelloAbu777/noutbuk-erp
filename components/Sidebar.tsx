@@ -20,7 +20,6 @@ const navItems = [
   { title: 'Mijozlar', href: '/mijozlar', icon: Users, roles: ['admin', 'kassir', 'yordamchi'] },
   { title: 'Nasiya', href: '/nasiya', icon: CreditCard, roles: ['admin', 'kassir'] },
   { title: "Ta'minotchilar", href: '/tamirotchilar', icon: Truck, roles: ['admin'] },
-  { title: 'Xaridlar', href: '/xaridlar', icon: ShoppingBag, roles: ['admin'] },
   { title: 'Xarajatlar', href: '/xarajatlar', icon: Receipt, roles: ['admin'] },
   { title: 'Ishchilar', href: '/ishchilar', icon: UserCheck, roles: ['admin'] },
   { title: 'Hisobotlar', href: '/hisobotlar', icon: BarChart3, roles: ['admin'] },
