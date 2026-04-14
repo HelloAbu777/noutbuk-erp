@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import CustomerProfileModal from '@/components/CustomerProfileModal';
 import { Search, Plus, Users, X, Pencil, Trash2, Send } from 'lucide-react';
 import { getDynamicFontSize, formatNumber } from '@/lib/format';
 
@@ -186,6 +187,7 @@ export default function MijozlarPage() {
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<Partial<Customer> | null | false>(false);
   const [sendModal, setSendModal] = useState<Customer | null>(null);
+  const [profileModal, setProfileModal] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
@@ -219,6 +221,9 @@ export default function MijozlarPage() {
       {sendModal && (
         <SendMsgModal customer={sendModal} onClose={() => setSendModal(null)} onSent={load} />
       )}
+      {profileModal && (
+        <CustomerProfileModal customer={profileModal} onClose={() => setProfileModal(null)} />
+      )}
       <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="p-4 lg:p-6">
           {/* Toolbar */}
@@ -248,7 +253,10 @@ export default function MijozlarPage() {
             ) : filtered.map(c => (
               <div key={c._id} className="p-4">
                 {/* Info */}
-                <div className="flex items-start justify-between gap-2 mb-2">
+                <div 
+                  className="flex items-start justify-between gap-2 mb-2 cursor-pointer"
+                  onClick={() => setProfileModal(c)}
+                >
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{c.name}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{c.phone}</p>
@@ -302,7 +310,12 @@ export default function MijozlarPage() {
                     </td></tr>
                   ) : filtered.map(c => (
                     <tr key={c._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{c.name}</td>
+                      <td 
+                        className="px-4 py-3 font-medium text-gray-900 dark:text-white cursor-pointer hover:text-blue-500"
+                        onClick={() => setProfileModal(c)}
+                      >
+                        {c.name}
+                      </td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{c.phone}</td>
                       <td className="px-4 py-3 text-gray-500 text-xs max-w-[140px] truncate">{c.address || '—'}</td>
                       <td className="px-4 py-3">
