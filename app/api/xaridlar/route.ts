@@ -28,17 +28,24 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { supplierId, productName, category, quantity, buyPrice, sellPrice, paidAmount, note } = body;
+  const { supplierId, supplierName, productName, category, quantity, buyPrice, sellPrice, paidAmount, note } = body;
 
   await connectDB();
 
-  const supplier = await Supplier.findById(supplierId);
-  if (!supplier) return NextResponse.json({ error: "Ta'minotchi topilmadi" }, { status: 404 });
+  let supplier = null;
+  let finalSupplierName = supplierName || 'Noma\'lum';
+  
+  if (supplierId) {
+    supplier = await Supplier.findById(supplierId);
+    if (supplier) {
+      finalSupplierName = supplier.companyName;
+    }
+  }
 
   const totalAmount = buyPrice * quantity;
   const purchase = await Purchase.create({
-    supplier: supplier._id,
-    supplierName: supplier.companyName,
+    supplier: supplier?._id,
+    supplierName: finalSupplierName,
     productName, category, quantity, buyPrice, sellPrice,
     totalAmount, paidAmount: paidAmount || 0,
     note,
@@ -51,14 +58,16 @@ export async function POST(req: Request) {
   await Warehouse.create({
     name: productName, category, quantity, buyPrice, sellPrice,
     purchaseId: purchase._id,
-    supplierName: supplier.companyName,
+    supplierName: finalSupplierName,
     status: 'in_warehouse',
   });
 
-  // Update supplier totals
-  await Supplier.findByIdAndUpdate(supplierId, {
-    $inc: { totalPurchased: totalAmount, totalPaid: paidAmount || 0 },
-  });
+  // Update supplier totals if supplier exists
+  if (supplier) {
+    await Supplier.findByIdAndUpdate(supplierId, {
+      $inc: { totalPurchased: totalAmount, totalPaid: paidAmount || 0 },
+    });
+  }
 
   return NextResponse.json(purchase, { status: 201 });
 }
