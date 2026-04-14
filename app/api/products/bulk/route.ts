@@ -3,8 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongoose';
 import Product from '@/models/Product';
+import Warehouse from '@/models/Warehouse';
 
-// PATCH /api/products/bulk — ommaviy kirim: bir nechta mahsulotga miqdor qo'shish
+// PATCH /api/products/bulk — ommaviy kirim: bir nechta mahsulotni omborga qo'shish
 export async function PATCH(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +18,21 @@ export async function PATCH(req: Request) {
 
   for (const { id, addQty } of updates) {
     if (!addQty || addQty <= 0) continue;
-    await Product.findByIdAndUpdate(id, { $inc: { quantity: addQty } });
+    
+    // Get product details
+    const product = await Product.findById(id);
+    if (!product) continue;
+    
+    // Add to warehouse instead of directly to product
+    await Warehouse.create({
+      name: product.name,
+      category: product.category,
+      quantity: addQty,
+      buyPrice: product.buyPrice,
+      sellPrice: product.sellPrice,
+      supplierName: 'Ommaviy kirim',
+      status: 'in_warehouse',
+    });
   }
 
   return NextResponse.json({ success: true });
