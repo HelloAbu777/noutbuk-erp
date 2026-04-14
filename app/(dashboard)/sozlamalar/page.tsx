@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import TelegramUserAuth from '@/components/TelegramUserAuth';
 import {
   Store, Send, Users, User, Database,
   Plus, Pencil, Trash2, X, Eye, EyeOff, Download, Upload,
@@ -93,6 +94,17 @@ function TelegramTab() {
   const [saved, setSaved] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState('');
+  
+  // Telegram User Account
+  const [userPhone, setUserPhone] = useState('');
+  const [userCode, setUserCode] = useState('');
+  const [userName, setUserName] = useState('');
+  const [phoneCodeHash, setPhoneCodeHash] = useState('');
+  const [sessionString, setSessionString] = useState('');
+  const [step, setStep] = useState<'phone' | 'code' | 'connected'>('phone');
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [userMsg, setUserMsg] = useState('');
 
   useEffect(() => {
     fetch('/api/sozlamalar').then(r => r.json()).then(d => {
@@ -100,6 +112,12 @@ function TelegramTab() {
         telegramBotToken: d.telegramBotToken || '',
         telegramChatId: d.telegramChatId || '',
       });
+      // Check if user account is connected
+      if (d.telegramUserSession && d.telegramUserPhone) {
+        setStep('connected');
+        setUserPhone(d.telegramUserPhone);
+        setUserName(d.telegramUserName || '');
+      }
     });
   }, []);
 
@@ -125,6 +143,65 @@ function TelegramTab() {
     const d = await res.json();
     setTestMsg(d.ok ? '✅ Xabar muvaffaqiyatli yuborildi!' : `❌ Xato: ${d.error}`);
     setTesting(false);
+  };
+
+  // Send code to phone
+  const handleSendCode = async () => {
+    if (!userPhone || userPhone.length < 10) {
+      setUserMsg('❌ To\'g\'ri telefon raqam kiriting'); return;
+    }
+    setSendingCode(true); setUserMsg('');
+    try {
+      const res = await fetch('/api/telegram-auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber: userPhone }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPhoneCodeHash(data.phoneCodeHash);
+        setSessionString(data.sessionString);
+        setStep('code');
+        setUserMsg('✅ Kod yuborildi! Telegramingizni tekshiring');
+      } else {
+        setUserMsg(`❌ ${data.error}`);
+      }
+    } catch (error) {
+      setUserMsg('❌ Tarmoq xatosi');
+    }
+    setSendingCode(false);
+  };
+
+  // Verify code
+  const handleVerifyCode = async () => {
+    if (!userCode || userCode.length < 5) {
+      setUserMsg('❌ Kodni kiriting'); return;
+    }
+    setVerifying(true); setUserMsg('');
+    try {
+      const res = await fetch('/api/telegram-auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phoneNumber: userPhone,
+          code: userCode,
+          phoneCodeHash,
+          sessionString,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setUserName(data.userName);
+        setStep('connected');
+        setUserMsg('✅ Telegram akkaunt ulandi!');
+        setTimeout(() => setUserMsg(''), 3000);
+      } else {
+        setUserMsg(`❌ ${data.error}`);
+      }
+    } catch (error) {
+      setUserMsg('❌ Tarmoq xatosi');
+    }
+    setVerifying(false);
   };
 
   const connected = !!(form.telegramBotToken && form.telegramChatId);
@@ -193,6 +270,12 @@ function TelegramTab() {
           </button>
         </div>
       </div>
+
+      <TelegramUserAuth 
+        initialPhone={userPhone}
+        initialName={userName}
+        isConnected={step === 'connected'}
+      />
 
       {connected && (
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">

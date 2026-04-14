@@ -13,11 +13,10 @@ export interface ISettings extends Document {
     sotuv: boolean;
     xarid: boolean;
   };
-  // GramJS — shaxsiy akkaunt orqali yuborish
-  gramApiId: string;
-  gramApiHash: string;
-  gramPhone: string;
-  gramSession: string; // saqlangan sessiya
+  // Telegram User Account (MTProto)
+  telegramUserSession: string;
+  telegramUserPhone: string;
+  telegramUserName: string;
 }
 
 const SettingsSchema = new Schema<ISettings>(
@@ -34,10 +33,9 @@ const SettingsSchema = new Schema<ISettings>(
       sotuv: { type: Boolean, default: true },
       xarid: { type: Boolean, default: true },
     },
-    gramApiId: { type: String, default: '' },
-    gramApiHash: { type: String, default: '' },
-    gramPhone: { type: String, default: '' },
-    gramSession: { type: String, default: '' },
+    telegramUserSession: { type: String, default: '' },
+    telegramUserPhone: { type: String, default: '' },
+    telegramUserName: { type: String, default: '' },
   },
   { timestamps: true }
 );
