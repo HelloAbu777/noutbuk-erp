@@ -332,10 +332,12 @@ function OmmaviyKirimModal({ products, warehouseMap, onClose, onSaved }: {
   const [search, setSearch] = useState('');
   const [qtys, setQtys] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [scannerActive, setScannerActive] = useState(false);
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
+    p.category.toLowerCase().includes(search.toLowerCase()) ||
+    (p.barcode && p.barcode.includes(search))
   );
 
   const totalAdding = Object.values(qtys).reduce((s, v) => s + (parseInt(v) || 0), 0);
@@ -352,6 +354,15 @@ function OmmaviyKirimModal({ products, warehouseMap, onClose, onSaved }: {
     });
     setSaving(false);
     onSaved();
+  };
+
+  const handleBarcodeDetected = (barcode: string) => {
+    const product = products.find(p => p.barcode === barcode);
+    if (product) {
+      const currentQty = parseInt(qtys[product._id] || '0');
+      setQtys(prev => ({ ...prev, [product._id]: (currentQty + 1).toString() }));
+      setSearch('');
+    }
   };
 
   const wareKey = (name: string) => name.trim().toLowerCase();
@@ -375,8 +386,20 @@ function OmmaviyKirimModal({ products, warehouseMap, onClose, onSaved }: {
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 flex-shrink-0">
           <div className="relative flex-1">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..."
+            <input 
+              value={search} 
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && search.trim()) {
+                  handleBarcodeDetected(search.trim());
+                }
+              }}
+              placeholder="Qidirish yoki barkod skanerlash..."
               className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Barcode size={14} />
+            <span>Skaner</span>
           </div>
           <div className="flex gap-0.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5">
             <button onClick={() => setViewMode('table')}
