@@ -31,7 +31,7 @@ function BarcodeModal({ product, onClose, onBarcodeGenerated }: {
 
   const generateBarcode = async () => {
     setGenerating(true);
-    const newCode = Date.now().toString().slice(-10);
+    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
     const res = await fetch(`/api/products/${product._id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ barcode: newCode }),
