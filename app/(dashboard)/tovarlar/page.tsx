@@ -746,17 +746,19 @@ export default function TovarlarPage() {
                   const buyPriceStr = p.buyPrice.toLocaleString('uz-UZ');
                   const sellPriceStr = p.sellPrice.toLocaleString('uz-UZ');
                   return (
-                    <div key={p._id} onClick={() => toggleOne(p._id)}
+                    <div key={p._id}
                       className={`relative rounded-xl border cursor-pointer transition-all flex flex-col ${
                         isSelected ? 'border-blue-400 bg-blue-50 dark:bg-blue-500/10 shadow-sm'
                           : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-blue-300 hover:shadow-sm'}`}>
-                      {/* Checkbox */}
-                      <div className="absolute top-2 left-2" onClick={e => e.stopPropagation()}>
-                        <input type="checkbox" checked={isSelected} onChange={() => toggleOne(p._id)}
-                          className="w-4 h-4 rounded border-gray-300 accent-blue-500 cursor-pointer" />
-                      </div>
-                      <div className="p-3 pt-8 flex-1 flex flex-col">
-                        <p className="text-xs font-semibold text-gray-900 dark:text-white leading-tight line-clamp-2 mb-1 h-8">{p.name}</p>
+                      <div className="p-3 flex-1 flex flex-col">
+                        {/* Checkbox va nom bir qatorda */}
+                        <div className="flex items-start gap-2 mb-2">
+                          <div onClick={e => e.stopPropagation()}>
+                            <input type="checkbox" checked={isSelected} onChange={() => toggleOne(p._id)}
+                              className="w-4 h-4 mt-0.5 rounded border-gray-300 accent-blue-500 cursor-pointer flex-shrink-0" />
+                          </div>
+                          <p className="text-xs font-semibold text-gray-900 dark:text-white leading-tight line-clamp-2 flex-1">{p.name}</p>
+                        </div>
                         <span className="inline-block text-xs px-1.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded mb-2 self-start">{p.category}</span>
                         {/* Qty badges */}
                         <div className="flex gap-1.5 mb-2">
