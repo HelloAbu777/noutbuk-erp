@@ -138,11 +138,18 @@ function Modal({ product, onClose, onSave }: {
     if (!form.buyPrice) { setErr('Sotib olish narxi kiritilmadi'); return; }
     if (!form.sellPrice) { setErr('Sotuv narxi kiritilmadi'); return; }
     setSaving(true); setErr('');
+    
+    // Generate 6-digit barcode if not editing or no barcode exists
+    let barcodeValue = form.barcode.trim();
+    if (!isEdit || !barcodeValue) {
+      barcodeValue = Math.floor(100000 + Math.random() * 900000).toString();
+    }
+    
     const body = {
       name: form.name.trim(), category: form.category,
       buyPrice: parseFloat(form.buyPrice), sellPrice: parseFloat(form.sellPrice),
       quantity: parseInt(form.quantity) || 0,
-      barcode: form.barcode.trim() || undefined,
+      barcode: barcodeValue,
       description: form.description.trim() || undefined, status: 'active',
     };
     const res = await fetch(isEdit ? `/api/products/${product!._id}` : '/api/products', {
@@ -181,8 +188,20 @@ function Modal({ product, onClose, onSave }: {
             <div><label className={labelCls}>Soni</label>
               <input type="number" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} className={inputCls} /></div>
           </div>
-          <div><label className={labelCls}>Barkod</label>
-            <input value={form.barcode} onChange={e => setForm(f => ({ ...f, barcode: e.target.value }))} className={inputCls} /></div>
+          {!isEdit && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                <Barcode size={12} className="inline mr-1" />
+                Barkod avtomatik yaratiladi (6 raqam)
+              </p>
+            </div>
+          )}
+          {isEdit && form.barcode && (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <label className="text-xs text-gray-500 mb-1 block">Barkod</label>
+              <p className="text-sm font-mono text-gray-900 dark:text-white">{form.barcode}</p>
+            </div>
+          )}
           <div><label className={labelCls}>Tavsif</label>
             <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className={inputCls} /></div>
           {err && <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{err}</p>}
