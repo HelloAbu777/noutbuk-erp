@@ -465,6 +465,7 @@ function ZaxiraTab() {
   const [importing, setImporting] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [msg, setMsg] = useState('');
 
   const handleExport = async () => {
@@ -542,15 +543,48 @@ function ZaxiraTab() {
     setTimeout(() => setMsg(''), 4000);
   };
 
+  const handleTestDB = async () => {
+    setTesting(true);
+    setMsg('🔍 Database tekshirilmoqda...');
+    try {
+      const res = await fetch('/api/test-db');
+      const data = await res.json();
+      if (res.ok) {
+        const total = Object.values(data.collections).reduce((a: number, b: any) => a + b, 0);
+        setMsg(`✅ Database ishlayapti! ${data.totalCollections} ta kolleksiya, ${total} ta yozuv`);
+      } else {
+        setMsg(`❌ Database xatosi: ${data.error}`);
+      }
+    } catch (error) {
+      setMsg('❌ Tarmoq xatosi - server javob bermadi');
+    }
+    setTesting(false);
+    setTimeout(() => setMsg(''), 5000);
+  };
+
   return (
     <div className="space-y-4 max-w-md">
+      <div className="bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 p-4 sm:p-5">
+        <h3 className="text-sm font-semibold text-green-700 dark:text-green-400 mb-2">🔍 Database tekshirish</h3>
+        <p className="text-xs text-green-600 dark:text-green-400 mb-4">
+          MongoDB ulanishi va ma'lumotlar bazasi holatini tekshiring.
+        </p>
+        <button onClick={handleTestDB} disabled={testing}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
+          <Database size={16} />
+          {testing ? "Tekshirilmoqda..." : "Database holatini tekshirish"}
+        </button>
+      </div>
+
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-2">Zaxira nusxa</h3>
         <p className="text-xs text-gray-500 mb-4">Barcha ma'lumotlarni JSON formatida yuklab oling yoki tiklang.</p>
         {msg && (
           <div className={`mb-3 px-3 py-2 border rounded-lg text-xs ${
-            msg.startsWith('✅') || msg.includes('yuklandi') || msg.includes('tiklandi')
+            msg.startsWith('✅') || msg.includes('yuklandi') || msg.includes('tiklandi') || msg.includes('ishlayapti')
               ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400'
+              : msg.startsWith('🔍')
+              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'
               : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
           }`}>
             {msg}

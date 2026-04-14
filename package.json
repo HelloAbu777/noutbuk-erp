@@ -11,7 +11,8 @@
     "seed-demo": "tsx scripts/seed-demo.ts",
     "reset": "tsx scripts/reset-data.ts",
     "set-quantity": "tsx scripts/set-quantity.ts",
-    "fix-products": "tsx scripts/fix-archived-products.ts"
+    "fix-products": "tsx scripts/fix-archived-products.ts",
+    "test-db": "tsx scripts/test-db.ts"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
