@@ -12,10 +12,10 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { title: 'Bosh sahifa', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'kassir', 'yordamchi'] },
+  { title: 'Bosh sahifa', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'yordamchi'] },
   { title: 'Sotuv', href: '/sotuv', icon: ShoppingCart, roles: ['admin', 'kassir', 'yordamchi'] },
   { title: 'Buyurtmalar', href: '/buyurtmalar', icon: ClipboardList, roles: ['admin', 'kassir', 'yordamchi'] },
-  { title: 'Tovarlar', href: '/tovarlar', icon: Package, roles: ['admin', 'kassir', 'yordamchi'] },
+  { title: 'Tovarlar', href: '/tovarlar', icon: Package, roles: ['admin', 'yordamchi'] },
   { title: 'Ombor', href: '/ombor', icon: Warehouse, roles: ['admin'] },
   { title: 'Mijozlar', href: '/mijozlar', icon: Users, roles: ['admin', 'kassir', 'yordamchi'] },
   { title: 'Nasiya', href: '/nasiya', icon: CreditCard, roles: ['admin', 'kassir'] },
