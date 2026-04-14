@@ -142,7 +142,20 @@ function Modal({ product, onClose, onSave }: {
     // Generate 6-digit barcode if not editing or no barcode exists
     let barcodeValue = form.barcode.trim();
     if (!isEdit || !barcodeValue) {
-      barcodeValue = Math.floor(100000 + Math.random() * 900000).toString();
+      // Eng kichik bo'sh barkodni olish
+      try {
+        const barcodeRes = await fetch('/api/products/next-barcode');
+        if (barcodeRes.ok) {
+          const barcodeData = await barcodeRes.json();
+          barcodeValue = barcodeData.barcode;
+        } else {
+          // Agar API ishlamasa, random barkod
+          barcodeValue = Math.floor(100000 + Math.random() * 900000).toString();
+        }
+      } catch {
+        // Xato bo'lsa, random barkod
+        barcodeValue = Math.floor(100000 + Math.random() * 900000).toString();
+      }
     }
     
     const body = {
