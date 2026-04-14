@@ -139,30 +139,11 @@ function Modal({ product, onClose, onSave }: {
     if (!form.sellPrice) { setErr('Sotuv narxi kiritilmadi'); return; }
     setSaving(true); setErr('');
     
-    // Generate 6-digit barcode if not editing or no barcode exists
-    let barcodeValue = form.barcode.trim();
-    if (!isEdit || !barcodeValue) {
-      // Eng kichik bo'sh barkodni olish
-      try {
-        const barcodeRes = await fetch('/api/products/next-barcode');
-        if (barcodeRes.ok) {
-          const barcodeData = await barcodeRes.json();
-          barcodeValue = barcodeData.barcode;
-        } else {
-          // Agar API ishlamasa, random barkod
-          barcodeValue = Math.floor(100000 + Math.random() * 900000).toString();
-        }
-      } catch {
-        // Xato bo'lsa, random barkod
-        barcodeValue = Math.floor(100000 + Math.random() * 900000).toString();
-      }
-    }
-    
     const body = {
       name: form.name.trim(), category: form.category,
       buyPrice: parseFloat(form.buyPrice), sellPrice: parseFloat(form.sellPrice),
       quantity: parseInt(form.quantity) || 0,
-      barcode: barcodeValue,
+      barcode: isEdit ? form.barcode.trim() : undefined, // API will generate for new products
       description: form.description.trim() || undefined, status: 'active',
     };
     const res = await fetch(isEdit ? `/api/products/${product!._id}` : '/api/products', {
