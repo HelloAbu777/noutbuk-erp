@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import SupplierProfileModal from '@/components/SupplierProfileModal';
 import { Search, Plus, Pencil, Trash2, X, Truck } from 'lucide-react';
 
 interface Supplier {
@@ -76,6 +77,7 @@ export default function TamirotchilarPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<Partial<Supplier> | null | false>(false);
+  const [profileModal, setProfileModal] = useState<Supplier | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
@@ -103,6 +105,9 @@ export default function TamirotchilarPage() {
     <>
       <Header title="Ta'minotchilar" />
       {modal !== false && <Modal supplier={modal} onClose={() => setModal(false)} onSave={() => { setModal(false); load(); }} />}
+      {profileModal && (
+        <SupplierProfileModal supplier={profileModal} onClose={() => setProfileModal(null)} />
+      )}
       <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="p-4 lg:p-6">
           {/* Toolbar */}
@@ -132,7 +137,10 @@ export default function TamirotchilarPage() {
             ) : filtered.map(s => (
               <div key={s._id} className="p-4">
                 {/* Info */}
-                <div className="mb-3">
+                <div 
+                  className="mb-3 cursor-pointer"
+                  onClick={() => setProfileModal(s)}
+                >
                   <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{s.companyName}</p>
                   <div className="flex items-center gap-3 mt-0.5">
                     {s.contactPerson && <p className="text-xs text-gray-500 truncate">{s.contactPerson}</p>}
@@ -183,7 +191,12 @@ export default function TamirotchilarPage() {
                   </td></tr>
                 ) : filtered.map(s => (
                   <tr key={s._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{s.companyName}</td>
+                    <td 
+                      className="px-4 py-3 font-medium text-gray-900 dark:text-white cursor-pointer hover:text-purple-500"
+                      onClick={() => setProfileModal(s)}
+                    >
+                      {s.companyName}
+                    </td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{s.contactPerson || '—'}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{s.phone}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs max-w-[120px] truncate">{s.address || '—'}</td>
