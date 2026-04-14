@@ -16,20 +16,44 @@ interface Nasiya {
 interface Stats { total: number; open: number; overdue: number; paid: number; totalAmount: number; remainingAmount: number; }
 
 function AddNasiyaModal({ onClose, onSave }: { onClose: () => void; onSave: () => void }) {
-  const [form, setForm] = useState({ customerName: '', customerPhone: '', totalAmount: '', dueDate: '', note: '' });
+  const [customers, setCustomers] = useState<Array<{ _id: string; name: string; phone: string }>>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [form, setForm] = useState({ totalAmount: '', dueDate: '', note: '' });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/customers')
+      .then(r => r.json())
+      .then(d => {
+        setCustomers(Array.isArray(d) ? d : []);
+        setLoadingCustomers(false);
+      })
+      .catch(() => setLoadingCustomers(false));
+  }, []);
 
   const handleSave = async () => {
-    if (!form.customerName || !form.customerPhone || !form.totalAmount) {
-      setErr("Majburiy maydonlarni to'ldiring");
+    if (!selectedCustomer || !form.totalAmount) {
+      setErr("Mijoz va summa kiritilishi shart");
+      return;
+    }
+    const customer = customers.find(c => c._id === selectedCustomer);
+    if (!customer) {
+      setErr("Mijoz topilmadi");
       return;
     }
     setSaving(true);
     const res = await fetch('/api/nasiya', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        totalAmount: form.totalAmount,
+        dueDate: form.dueDate,
+        note: form.note,
+      }),
     });
     if (!res.ok) {
       const d = await res.json();
@@ -51,15 +75,25 @@ function AddNasiyaModal({ onClose, onSave }: { onClose: () => void; onSave: () =
         </div>
         <div className="p-4 space-y-3">
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Mijoz ismi *</label>
-            <input value={form.customerName} onChange={e => setForm({ ...form, customerName: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Telefon *</label>
-            <input value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })}
-              placeholder="+998 90 123 45 67"
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
+            <label className="text-xs text-gray-500 mb-1 block">Mijoz *</label>
+            {loadingCustomers ? (
+              <div className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-400">
+                Yuklanmoqda...
+              </div>
+            ) : (
+              <select 
+                value={selectedCustomer} 
+                onChange={e => setSelectedCustomer(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400"
+              >
+                <option value="">Mijozni tanlang</option>
+                {customers.map(c => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} ({c.phone})
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Jami summa *</label>
