@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
+    "seed-demo": "tsx scripts/seed-demo.ts",
     "reset": "tsx scripts/reset-data.ts",
     "set-quantity": "tsx scripts/set-quantity.ts",
     "fix-products": "tsx scripts/fix-archived-products.ts"
