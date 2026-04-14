@@ -464,6 +464,7 @@ function ZaxiraTab() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [seeding, setSeeding] = useState(false);
   const [msg, setMsg] = useState('');
 
   const handleExport = async () => {
@@ -521,6 +522,26 @@ function ZaxiraTab() {
     setTimeout(() => setMsg(''), 4000);
   };
 
+  const handleSeedDemo = async () => {
+    if (!confirm("Demo ma'lumotlar qo'shilsinmi? (10 ta mahsulot, 5 ta mijoz, 3 ta sotuv va boshqalar)")) return;
+    
+    setSeeding(true);
+    try {
+      const res = await fetch('/api/seed-demo', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setMsg(`✅ Demo ma'lumotlar qo'shildi! (${data.stats.products} mahsulot, ${data.stats.customers} mijoz, ${data.stats.sales} sotuv)`);
+        setTimeout(() => window.location.reload(), 3000);
+      } else {
+        setMsg(`❌ Xato: ${data.error}`);
+      }
+    } catch (error) {
+      setMsg('❌ Tarmoq xatosi');
+    }
+    setSeeding(false);
+    setTimeout(() => setMsg(''), 4000);
+  };
+
   return (
     <div className="space-y-4 max-w-md">
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5">
@@ -546,6 +567,18 @@ function ZaxiraTab() {
           </button>
           <input ref={fileRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
         </div>
+      </div>
+
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-4 sm:p-5">
+        <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-2">📦 Demo ma'lumotlar</h3>
+        <p className="text-xs text-blue-600 dark:text-blue-400 mb-4">
+          Tizimni sinab ko'rish uchun demo ma'lumotlar qo'shing (10 mahsulot, 5 mijoz, 3 sotuv va boshqalar).
+        </p>
+        <button onClick={handleSeedDemo} disabled={seeding}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
+          <Database size={16} />
+          {seeding ? "Qo'shilmoqda..." : "Demo ma'lumotlar qo'shish"}
+        </button>
       </div>
 
       <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 p-4 sm:p-5">
