@@ -1,0 +1,363 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("kassir")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sales     Sale[]
+  orders    Order[]
+}
+
+// Customer model
+model Customer {
+  id             String   @id @default(cuid())
+  name           String
+  phone          String
+  address        String?
+  debt           Float    @default(0)
+  telegramChatId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sales   Sale[]
+  nasiyas Nasiya[]
+
+  @@index([phone])
+  @@index([name])
+  @@index([debt])
+}
+
+// Product model
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  buyPrice    Float
+  sellPrice   Float
+  quantity    Int      @default(0)
+  barcode     String?
+  description String?
+  image       String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  saleItems SaleItem[]
+  orderItems OrderItem[]
+
+  @@index([barcode])
+  @@index([name])
+  @@index([category])
+  @@index([status])
+}
+
+// Warehouse model
+model Warehouse {
+  id           String    @id @default(cuid())
+  name         String
+  category     String
+  quantity     Int       @default(0)
+  buyPrice     Float
+  sellPrice    Float
+  barcode      String?
+  description  String?
+  purchaseId   String?
+  supplierName String?
+  status       String    @default("in_warehouse")
+  sentAt       DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  purchase Purchase? @relation(fields: [purchaseId], references: [id])
+
+  @@index([barcode])
+  @@index([name])
+  @@index([status])
+  @@index([category])
+}
+
+// Sale model
+model Sale {
+  id            String     @id @default(cuid())
+  total         Float
+  totalCost     Float
+  paymentType   String
+  naqtAmount    Float?
+  kartaAmount   Float?
+  customerId    String?
+  customerName  String?
+  createdById   String
+  createdByName String
+  date          DateTime   @default(now())
+  status        String     @default("active")
+  returnedAt    DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  items     SaleItem[]
+  customer  Customer?  @relation(fields: [customerId], references: [id])
+  createdBy User       @relation(fields: [createdById], references: [id])
+
+  @@index([date])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdById])
+}
+
+// SaleItem model
+model SaleItem {
+  id          String @id @default(cuid())
+  saleId      String
+  productId   String
+  productName String
+  quantity    Int
+  buyPrice    Float
+  sellPrice   Float
+
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// Supplier model
+model Supplier {
+  id             String   @id @default(cuid())
+  companyName    String
+  contactPerson  String
+  phone          String
+  address        String?
+  totalPurchased Float    @default(0)
+  totalPaid      Float    @default(0)
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  purchases Purchase[]
+
+  @@index([companyName])
+  @@index([phone])
+  @@index([status])
+}
+
+// Purchase model
+model Purchase {
+  id            String   @id @default(cuid())
+  supplierId    String?
+  supplierName  String
+  productName   String
+  category      String
+  quantity      Int
+  buyPrice      Float
+  sellPrice     Float
+  totalAmount   Float
+  paidAmount    Float    @default(0)
+  note          String?
+  createdById   String
+  createdByName String
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  supplier   Supplier?    @relation(fields: [supplierId], references: [id])
+  warehouses Warehouse[]
+
+  @@index([date])
+  @@index([supplierId])
+}
+
+// Nasiya model
+model Nasiya {
+  id           String   @id @default(cuid())
+  customerId   String
+  customerName String
+  totalAmount  Float
+  paidAmount   Float    @default(0)
+  remainingAmount Float
+  saleId       String?
+  productName  String?
+  status       String   @default("active")
+  dueDate      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customer Customer         @relation(fields: [customerId], references: [id])
+  payments PaymentRecord[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// PaymentRecord model
+model PaymentRecord {
+  id       String   @id @default(cuid())
+  nasiyaId String
+  amount   Float
+  date     DateTime @default(now())
+  note     String?
+
+  nasiya Nasiya @relation(fields: [nasiyaId], references: [id], onDelete: Cascade)
+}
+
+// Expense model
+model Expense {
+  id          String   @id @default(cuid())
+  title       String
+  amount      Float
+  category    String
+  description String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+  @@index([category])
+}
+
+// Worker model
+model Worker {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  position  String
+  salary    Float
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+  @@index([status])
+}
+
+// Order model (Buyurtmalar)
+model Order {
+  id              String   @id @default(cuid())
+  yordamchiId     String
+  yordamchiName   String
+  customerName    String
+  customerPhone   String
+  totalAmount     Float
+  advancePayment  Float    @default(0)
+  remainingAmount Float
+  status          String   @default("pending")
+  deliveryDate    DateTime?
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items      OrderItem[]
+  yordamchi  User        @relation(fields: [yordamchiId], references: [id])
+
+  @@index([status])
+  @@index([deliveryDate])
+  @@index([yordamchiId])
+}
+
+// OrderItem model
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  productId   String
+  productName String
+  quantity    Int
+  price       Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// Agent model (Yordamchilar)
+model Agent {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  address   String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+  @@index([status])
+}
+
+// Partner model
+model Partner {
+  id        String   @id @default(cuid())
+  storeName String
+  ownerName String
+  phone     String
+  address   String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders PartnerOrder[]
+
+  @@index([phone])
+  @@index([status])
+}
+
+// PartnerOrder model
+model PartnerOrder {
+  id              String   @id @default(cuid())
+  partnerId       String
+  productName     String
+  quantity        Int
+  price           Float
+  totalAmount     Float
+  status          String   @default("pending")
+  deliveryDate    DateTime?
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  partner Partner @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@index([status])
+  @@index([deliveryDate])
+}
+
+// Message model
+model Message {
+  id           String   @id @default(cuid())
+  customerName String
+  phone        String
+  message      String
+  status       String   @default("pending")
+  sentAt       DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@index([phone])
+}
+
+// Settings model
+model Settings {
+  id                String   @id @default(cuid())
+  shopName          String   @default("Noutbuk Do'kon")
+  address           String?
+  phone             String?
+  telegramBotToken  String?
+  telegramChatId    String?
+  lowStockThreshold Int      @default(5)
+  currency          String   @default("UZS")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
