@@ -28,5 +28,11 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
+// Indexes for faster queries
+ProductSchema.index({ barcode: 1 });
+ProductSchema.index({ name: 'text' });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ status: 1 });
+
 export default mongoose.models.Product ||
   mongoose.model<IProduct>('Product', ProductSchema);

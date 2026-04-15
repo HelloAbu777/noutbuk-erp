@@ -32,5 +32,11 @@ const WarehouseSchema = new Schema<IWarehouse>(
   { timestamps: true }
 );
 
+// Indexes for faster queries
+WarehouseSchema.index({ barcode: 1 });
+WarehouseSchema.index({ name: 'text' });
+WarehouseSchema.index({ status: 1 });
+WarehouseSchema.index({ category: 1 });
+
 export default mongoose.models.Warehouse ||
   mongoose.model<IWarehouse>('Warehouse', WarehouseSchema);

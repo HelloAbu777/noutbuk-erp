@@ -55,4 +55,10 @@ const SaleSchema = new Schema<ISale>(
   { timestamps: true }
 );
 
+// Indexes for faster queries
+SaleSchema.index({ date: -1 });
+SaleSchema.index({ customer: 1 });
+SaleSchema.index({ status: 1 });
+SaleSchema.index({ createdBy: 1 });
+
 export default mongoose.models.Sale || mongoose.model<ISale>('Sale', SaleSchema);

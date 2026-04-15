@@ -24,5 +24,10 @@ const SupplierSchema = new Schema<ISupplier>(
   { timestamps: true }
 );
 
+// Indexes for faster queries
+SupplierSchema.index({ companyName: 'text' });
+SupplierSchema.index({ phone: 1 });
+SupplierSchema.index({ status: 1 });
+
 export default mongoose.models.Supplier ||
   mongoose.model<ISupplier>('Supplier', SupplierSchema);

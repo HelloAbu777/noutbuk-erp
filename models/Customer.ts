@@ -20,5 +20,10 @@ const CustomerSchema = new Schema<ICustomer>(
   { timestamps: true }
 );
 
+// Indexes for faster queries
+CustomerSchema.index({ phone: 1 });
+CustomerSchema.index({ name: 'text' });
+CustomerSchema.index({ debt: -1 });
+
 export default mongoose.models.Customer ||
   mongoose.model<ICustomer>('Customer', CustomerSchema);
