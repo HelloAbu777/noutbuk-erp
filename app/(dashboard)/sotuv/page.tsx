@@ -310,7 +310,7 @@ function HeldOrdersPanel({
                 naqt: 'Naqt', karta: 'Karta', nasiya: 'Nasiya', aralash: 'Aralash',
               };
               return (
-                <div key={order.id}
+                <div key={order._id || order.id}
                   className="px-4 py-3 border-b border-gray-50 dark:border-gray-800 last:border-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
