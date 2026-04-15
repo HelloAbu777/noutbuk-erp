@@ -1,9 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Sale from '@/models/Sale';
-import Expense from '@/models/Expense';
+import prisma from '@/lib/prisma';
 import Header from '@/components/Header';
 import StatsCard from '@/components/dashboard/StatsCard';
 import SalesChart from '@/components/dashboard/SalesChart';
@@ -11,8 +9,6 @@ import TopProducts from '@/components/dashboard/TopProducts';
 import { TrendingUp, DollarSign, Receipt, PiggyBank } from 'lucide-react';
 
 async function getDashboardData() {
-  await connectDB();
-
   const now = new Date();
 
   const sevenDaysAgo = new Date(now);
@@ -25,9 +21,16 @@ async function getDashboardData() {
   weekStart.setHours(0, 0, 0, 0);
 
   const [sales, weekSales, expenses] = await Promise.all([
-    Sale.find({ date: { $gte: sevenDaysAgo } }).lean(),
-    Sale.find({ date: { $gte: weekStart } }).lean(),
-    Expense.find({ date: { $gte: weekStart } }).lean(),
+    prisma.sale.findMany({ 
+      where: { date: { gte: sevenDaysAgo } },
+      include: { items: true }
+    }),
+    prisma.sale.findMany({ 
+      where: { date: { gte: weekStart } }
+    }),
+    prisma.expense.findMany({ 
+      where: { date: { gte: weekStart } }
+    }),
   ]);
 
   const sotuv = sales.reduce((sum, s) => sum + s.total, 0);
