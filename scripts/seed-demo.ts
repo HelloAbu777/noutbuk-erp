@@ -40,16 +40,16 @@ async function seedDemo() {
     console.log('📦 Mahsulotlar...');
     await db.collection('products').deleteMany({});
     await db.collection('products').insertMany([
-      { name: 'Asus VivoBook 15 X1500EA', category: 'Noutbuk', buyPrice: 4500000, sellPrice: 5200000, quantity: 15, barcode: '4710483694065', status: 'active' },
-      { name: 'HP 15s-fq5000', category: 'Noutbuk', buyPrice: 3800000, sellPrice: 4400000, quantity: 12, barcode: '0197029463608', status: 'active' },
-      { name: 'Lenovo IdeaPad 3 15ALC6', category: 'Noutbuk', buyPrice: 5200000, sellPrice: 5900000, quantity: 8, barcode: '0196119785604', status: 'active' },
-      { name: 'Acer Aspire 5 A515-56', category: 'Noutbuk', buyPrice: 4800000, sellPrice: 5500000, quantity: 10, barcode: '4710180924068', status: 'active' },
-      { name: 'Dell Inspiron 15 3511', category: 'Noutbuk', buyPrice: 5500000, sellPrice: 6200000, quantity: 6, barcode: '0884116378754', status: 'active' },
-      { name: 'Apple MacBook Air M2 13"', category: 'Noutbuk', buyPrice: 12000000, sellPrice: 14500000, quantity: 3, barcode: '0194253375357', status: 'active' },
-      { name: 'Logitech MX Keys Wireless', category: 'Aksessuar', buyPrice: 350000, sellPrice: 450000, quantity: 20, barcode: '5099206086425', status: 'active' },
-      { name: 'HP USB Optical Mouse', category: 'Aksessuar', buyPrice: 55000, sellPrice: 80000, quantity: 35, barcode: '0889894526083', status: 'active' },
-      { name: 'TP-Link USB Wi-Fi Adapter', category: 'Aksessuar', buyPrice: 80000, sellPrice: 120000, quantity: 25, barcode: '6935364051396', status: 'active' },
-      { name: 'SanDisk 256GB USB Flash Drive', category: 'Aksessuar', buyPrice: 95000, sellPrice: 140000, quantity: 30, barcode: '0619659182458', status: 'active' },
+      { name: 'Asus VivoBook 15 X1500EA', category: 'Noutbuk', buyPrice: 4500000, sellPrice: 5200000, quantity: 15, barcode: '000001', status: 'active' },
+      { name: 'HP 15s-fq5000', category: 'Noutbuk', buyPrice: 3800000, sellPrice: 4400000, quantity: 12, barcode: '000002', status: 'active' },
+      { name: 'Lenovo IdeaPad 3 15ALC6', category: 'Noutbuk', buyPrice: 5200000, sellPrice: 5900000, quantity: 8, barcode: '000003', status: 'active' },
+      { name: 'Acer Aspire 5 A515-56', category: 'Noutbuk', buyPrice: 4800000, sellPrice: 5500000, quantity: 10, barcode: '000004', status: 'active' },
+      { name: 'Dell Inspiron 15 3511', category: 'Noutbuk', buyPrice: 5500000, sellPrice: 6200000, quantity: 6, barcode: '000005', status: 'active' },
+      { name: 'Apple MacBook Air M2 13"', category: 'Noutbuk', buyPrice: 12000000, sellPrice: 14500000, quantity: 3, barcode: '000006', status: 'active' },
+      { name: 'Logitech MX Keys Wireless', category: 'Aksessuar', buyPrice: 350000, sellPrice: 450000, quantity: 20, barcode: '000007', status: 'active' },
+      { name: 'HP USB Optical Mouse', category: 'Aksessuar', buyPrice: 55000, sellPrice: 80000, quantity: 35, barcode: '000008', status: 'active' },
+      { name: 'TP-Link USB Wi-Fi Adapter', category: 'Aksessuar', buyPrice: 80000, sellPrice: 120000, quantity: 25, barcode: '000009', status: 'active' },
+      { name: 'SanDisk 256GB USB Flash Drive', category: 'Aksessuar', buyPrice: 95000, sellPrice: 140000, quantity: 30, barcode: '000010', status: 'active' },
     ]);
     console.log('   ✓ 10 ta mahsulot');
 
