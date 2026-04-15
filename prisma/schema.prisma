@@ -25,14 +25,13 @@ model User {
 
 // Customer model
 model Customer {
-  id             String   @id @default(cuid())
-  name           String
-  phone          String
-  address        String?
-  debt           Float    @default(0)
-  telegramChatId String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  address   String?
+  debt      Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   sales   Sale[]
   nasiyas Nasiya[]
@@ -334,17 +333,20 @@ model PartnerOrder {
 
 // Message model
 model Message {
-  id           String   @id @default(cuid())
-  customerName String
-  phone        String
-  message      String
-  status       String   @default("pending")
-  sentAt       DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String    @id @default(cuid())
+  customerName  String
+  customerPhone String
+  type          String    @default("qarz_eslatma")
+  messageText   String
+  status        String    @default("navbatda")
+  errorText     String?
+  createdByName String?
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([status])
-  @@index([phone])
+  @@index([customerPhone])
 }
 
 // Settings model
@@ -353,8 +355,6 @@ model Settings {
   shopName          String   @default("Noutbuk Do'kon")
   address           String?
   phone             String?
-  telegramBotToken  String?
-  telegramChatId    String?
   lowStockThreshold Int      @default(5)
   currency          String   @default("UZS")
   createdAt         DateTime @default(now())

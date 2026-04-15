@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import User from '@/models/User';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -11,24 +10,26 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params;
   const body = await req.json();
-  await connectDB();
 
   if (body.currentPassword) {
-    const user = await User.findById(id);
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 });
     const isValid = await bcrypt.compare(body.currentPassword, user.password);
     if (!isValid) return NextResponse.json({ error: "Joriy parol noto'g'ri" }, { status: 400 });
-    delete body.currentPassword;
   }
 
-  if (body.password) {
-    body.password = await bcrypt.hash(body.password, 10);
-  } else {
-    delete body.password;
-  }
+  const updateData: any = {};
+  if (body.name) updateData.name = body.name;
+  if (body.role) updateData.role = body.role;
+  if (body.login) updateData.email = body.login;
+  if (body.password) updateData.password = await bcrypt.hash(body.password, 10);
 
-  const user = await User.findByIdAndUpdate(id, { $set: body }, { new: true }).select('-password');
-  return NextResponse.json(user);
+  const user = await prisma.user.update({
+    where: { id },
+    data: updateData,
+    select: { id: true, name: true, email: true, role: true },
+  });
+  return NextResponse.json({ ...user, _id: user.id, login: user.email });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -38,7 +39,12 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   }
 
   const { id } = await params;
-  await connectDB();
-  await User.findByIdAndUpdate(id, { status: 'inactive' });
+  // O'chirish o'rniga faqat foydalanishdan chiqarish (agar sotuv bog'liq bo'lsa)
+  try {
+    await prisma.user.delete({ where: { id } });
+  } catch {
+    // Agar bog'liq ma'lumotlar bo'lsa, o'chirib bo'lmaydi
+    return NextResponse.json({ error: "Bu foydalanuvchini o'chirib bo'lmaydi (bog'liq ma'lumotlar mavjud)" }, { status: 400 });
+  }
   return NextResponse.json({ success: true });
 }

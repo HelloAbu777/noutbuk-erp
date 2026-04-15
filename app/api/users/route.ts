@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import User from '@/models/User';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
-  const users = await User.find().select('-password').sort({ name: 1 }).lean();
-  return NextResponse.json(users);
+  const users = await prisma.user.findMany({
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true, email: true, role: true, createdAt: true },
+  });
+  return NextResponse.json(users.map(u => ({ ...u, _id: u.id, login: u.email })));
 }
 
 export async function POST(req: Request) {
@@ -21,13 +22,18 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { name, login, password, role, phone } = body;
+  const { name, login, password, role } = body;
 
-  await connectDB();
-  const exists = await User.findOne({ login });
+  if (!name || !login || !password) {
+    return NextResponse.json({ error: "Ism, login va parol majburiy" }, { status: 400 });
+  }
+
+  const exists = await prisma.user.findFirst({ where: { email: login } });
   if (exists) return NextResponse.json({ error: 'Bu login band' }, { status: 400 });
 
   const hashed = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, login, password: hashed, role, phone });
-  return NextResponse.json({ _id: user._id, name: user.name, login: user.login, role: user.role }, { status: 201 });
+  const user = await prisma.user.create({
+    data: { name, email: login, password: hashed, role: role || 'kassir' },
+  });
+  return NextResponse.json({ _id: user.id, name: user.name, login: user.email, role: user.role }, { status: 201 });
 }

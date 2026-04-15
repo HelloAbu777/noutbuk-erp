@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Product from '@/models/Product';
-import Warehouse from '@/models/Warehouse';
+import prisma from '@/lib/prisma';
 
 // PATCH /api/products/bulk — ommaviy kirim: bir nechta mahsulotni omborga qo'shish
 export async function PATCH(req: Request) {
@@ -14,24 +12,24 @@ export async function PATCH(req: Request) {
   if (!Array.isArray(updates) || updates.length === 0)
     return NextResponse.json({ error: "Ma'lumot yo'q" }, { status: 400 });
 
-  await connectDB();
-
   for (const { id, addQty } of updates) {
     if (!addQty || addQty <= 0) continue;
     
     // Get product details
-    const product = await Product.findById(id);
+    const product = await prisma.product.findUnique({ where: { id } });
     if (!product) continue;
     
     // Add to warehouse instead of directly to product
-    await Warehouse.create({
-      name: product.name,
-      category: product.category,
-      quantity: addQty,
-      buyPrice: product.buyPrice,
-      sellPrice: product.sellPrice,
-      supplierName: 'Ommaviy kirim',
-      status: 'in_warehouse',
+    await prisma.warehouse.create({
+      data: {
+        name: product.name,
+        category: product.category,
+        quantity: addQty,
+        buyPrice: product.buyPrice,
+        sellPrice: product.sellPrice,
+        supplierName: 'Ommaviy kirim',
+        status: 'in_warehouse',
+      },
     });
   }
 

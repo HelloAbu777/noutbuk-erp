@@ -9,7 +9,7 @@ import { getDynamicFontSize, formatNumber } from '@/lib/format';
 
 interface Customer {
   _id: string; name: string; phone: string; address?: string;
-  debt: number; telegramChatId?: string; createdAt: string;
+  debt: number; createdAt: string;
 }
 
 function Modal({ customer, onClose, onSave }: {
@@ -20,7 +20,6 @@ function Modal({ customer, onClose, onSave }: {
     name: customer?.name || '',
     phone: customer?.phone || '',
     address: customer?.address || '',
-    telegramChatId: customer?.telegramChatId || '',
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
@@ -67,21 +66,6 @@ function Modal({ customer, onClose, onSave }: {
             <label className="text-xs text-gray-500 mb-1 block">Manzil</label>
             <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
               className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400" />
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">
-              Telegram Chat ID
-              <span className="ml-1 text-gray-400 font-normal">(ixtiyoriy)</span>
-            </label>
-            <input
-              value={form.telegramChatId}
-              onChange={e => setForm(f => ({ ...f, telegramChatId: e.target.value }))}
-              placeholder="masalan: 123456789"
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400"
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Mijoz @userinfobot ga yozsa Chat ID sini oladi
-            </p>
           </div>
           {err && <p className="text-xs text-red-500">{err}</p>}
           <button onClick={handleSubmit} disabled={saving}
@@ -138,20 +122,6 @@ function SendMsgModal({ customer, onClose, onSent }: {
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400"><X size={16} /></button>
         </div>
         <div className="p-4 space-y-3">
-          {!customer.telegramChatId && (
-            <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-lg p-3">
-              <p className="text-xs text-amber-700 dark:text-amber-400">
-                ⚠️ Bu mijozda Telegram Chat ID ulangan emas. Xabar admin chatiga yuboriladi.
-              </p>
-            </div>
-          )}
-          {customer.telegramChatId && (
-            <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-lg p-3">
-              <p className="text-xs text-green-700 dark:text-green-400">
-                ✅ Telegram ulangan — xabar mijozning o'z Telegramiga ketadi
-              </p>
-            </div>
-          )}
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Xabar turi</label>
             <select value={type} onChange={e => setType(e.target.value as any)}
@@ -262,10 +232,6 @@ export default function MijozlarPage() {
                     <p className="text-xs text-gray-500 mt-0.5">{c.phone}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                    {c.telegramChatId
-                      ? <span className="px-2 py-0.5 rounded-full text-xs bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 font-medium">✅ TG</span>
-                      : <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-400">— TG</span>
-                    }
                     {c.debt > 0
                       ? <span className={`font-bold text-red-500 whitespace-nowrap ${getDynamicFontSize(c.debt)}`}>{formatNumber(c.debt)} so'm</span>
                       : <span className="text-xs text-green-600 font-medium">✅ 0</span>
@@ -296,7 +262,7 @@ export default function MijozlarPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                  <tr>{['Ism familiya', 'Telefon', 'Manzil', 'Telegram', 'Qarz', 'Amallar'].map(h => (
+                  <tr>{['Ism familiya', 'Telefon', 'Manzil', 'Qarz', 'Amallar'].map(h => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}</tr>
                 </thead>
@@ -318,12 +284,6 @@ export default function MijozlarPage() {
                       </td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{c.phone}</td>
                       <td className="px-4 py-3 text-gray-500 text-xs max-w-[140px] truncate">{c.address || '—'}</td>
-                      <td className="px-4 py-3">
-                        {c.telegramChatId
-                          ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 font-medium">✅ Ulangan</span>
-                          : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-400">— Ulanmagan</span>
-                        }
-                      </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {c.debt > 0
                           ? <span className={`text-red-500 font-semibold ${getDynamicFontSize(c.debt)}`}>🔴 {formatNumber(c.debt)}</span>

@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Sale from '@/models/Sale';
-import Expense from '@/models/Expense';
-import Nasiya from '@/models/Nasiya';
+import prisma from '@/lib/prisma';
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -18,12 +15,15 @@ export async function GET(req: Request) {
   const toDate = new Date(to);
   toDate.setHours(23, 59, 59, 999);
 
-  await connectDB();
-
   const [sales, expenses, nasiyaList] = await Promise.all([
-    Sale.find({ date: { $gte: fromDate, $lte: toDate } }).lean(),
-    Expense.find({ date: { $gte: fromDate, $lte: toDate } }).lean(),
-    Nasiya.find().lean(),
+    prisma.sale.findMany({
+      where: { date: { gte: fromDate, lte: toDate } },
+      include: { items: true },
+    }),
+    prisma.expense.findMany({
+      where: { date: { gte: fromDate, lte: toDate } },
+    }),
+    prisma.nasiya.findMany(),
   ]);
 
   const sotuv = sales.reduce((s, x) => s + x.total, 0);
@@ -31,13 +31,13 @@ export async function GET(req: Request) {
   const xarajatlar = expenses.reduce((s, x) => s + x.amount, 0);
   const sofFoyda = daromad - xarajatlar;
 
-  // Daily chart data — lokal sana ishlatiladi (toISOString UTC shift muammosini oldini olish uchun)
+  // Kunlik grafik
   const localKey = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
   const chartData: { date: string; amount: number }[] = [];
   const cursor = new Date(fromDate);
-  cursor.setHours(0, 0, 0, 0); // lokal yarim tun
+  cursor.setHours(0, 0, 0, 0);
 
   while (cursor <= toDate) {
     const nextDay = new Date(cursor);
@@ -58,10 +58,10 @@ export async function GET(req: Request) {
     cursor.setDate(cursor.getDate() + 1);
   }
 
-  // Top 10 products
+  // Top 10 mahsulot
   const prodMap: Record<string, { name: string; qty: number; total: number }> = {};
   sales.forEach((sale) => {
-    sale.items.forEach((item: any) => {
+    sale.items.forEach((item) => {
       if (!prodMap[item.productName]) {
         prodMap[item.productName] = { name: item.productName, qty: 0, total: 0 };
       }
@@ -71,11 +71,11 @@ export async function GET(req: Request) {
   });
   const topProducts = Object.values(prodMap).sort((a, b) => b.qty - a.qty).slice(0, 10);
 
-  // Nasiya summary
+  // Nasiya statistika
   const nasiyaStats = {
     total: nasiyaList.length,
     paid: nasiyaList.filter((n) => n.status === 'paid').length,
-    open: nasiyaList.filter((n) => n.status === 'open').length,
+    open: nasiyaList.filter((n) => n.status === 'active').length,
     overdue: nasiyaList.filter((n) => n.status === 'overdue').length,
   };
 

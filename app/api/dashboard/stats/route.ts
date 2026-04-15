@@ -1,17 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Sale from '@/models/Sale';
-import Expense from '@/models/Expense';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  await connectDB();
 
   const now = new Date();
 
@@ -25,9 +21,17 @@ export async function GET() {
   weekStart.setHours(0, 0, 0, 0);
 
   const [sales, weekSales, expenses] = await Promise.all([
-    Sale.find({ date: { $gte: sevenDaysAgo } }).lean(),
-    Sale.find({ date: { $gte: weekStart } }).lean(),
-    Expense.find({ date: { $gte: weekStart } }).lean(),
+    prisma.sale.findMany({
+      where: { date: { gte: sevenDaysAgo } },
+      include: { items: true },
+    }),
+    prisma.sale.findMany({
+      where: { date: { gte: weekStart } },
+      include: { items: true },
+    }),
+    prisma.expense.findMany({
+      where: { date: { gte: weekStart } },
+    }),
   ]);
 
   const sotuv = sales.reduce((sum, s) => sum + s.total, 0);
@@ -64,7 +68,7 @@ export async function GET() {
   > = {};
 
   weekSales.forEach((sale) => {
-    sale.items.forEach((item: any) => {
+    sale.items.forEach((item) => {
       if (!productMap[item.productName]) {
         productMap[item.productName] = {
           name: item.productName,

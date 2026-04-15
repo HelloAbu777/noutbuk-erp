@@ -10,7 +10,10 @@ export async function GET() {
   const customers = await prisma.customer.findMany({
     orderBy: { name: 'asc' },
   });
-  return NextResponse.json(customers);
+  
+  // Transform id to _id for backward compatibility
+  const transformed = customers.map(c => ({ ...c, _id: c.id }));
+  return NextResponse.json(transformed);
 }
 
 export async function POST(req: Request) {
@@ -26,5 +29,7 @@ export async function POST(req: Request) {
   const customer = await prisma.customer.create({
     data: { name, phone, address },
   });
-  return NextResponse.json(customer, { status: 201 });
+  
+  const transformed = { ...customer, _id: customer.id };
+  return NextResponse.json(transformed, { status: 201 });
 }

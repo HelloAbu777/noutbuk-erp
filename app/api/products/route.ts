@@ -12,7 +12,9 @@ export async function GET() {
     orderBy: { name: 'asc' },
   });
   
-  return NextResponse.json(products);
+  // Transform id to _id for backward compatibility with frontend
+  const transformed = products.map(p => ({ ...p, _id: p.id }));
+  return NextResponse.json(transformed);
 }
 
 export async function POST(req: Request) {
@@ -54,5 +56,6 @@ export async function POST(req: Request) {
     data: body,
   });
   
-  return NextResponse.json(product, { status: 201 });
+  const transformed = { ...product, _id: product.id };
+  return NextResponse.json(transformed, { status: 201 });
 }

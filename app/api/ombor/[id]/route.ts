@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Warehouse from '@/models/Warehouse';
+import prisma from '@/lib/prisma';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -10,10 +9,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params;
   const body = await req.json();
-  await connectDB();
-  const item = await Warehouse.findByIdAndUpdate(id, { $set: body }, { new: true });
+  
+  const item = await prisma.warehouse.update({
+    where: { id },
+    data: body,
+  }).catch(() => null);
+  
   if (!item) return NextResponse.json({ error: 'Topilmadi' }, { status: 404 });
-  return NextResponse.json(item);
+  const transformed = { ...item, _id: item.id };
+  return NextResponse.json(transformed);
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +25,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  await connectDB();
-  await Warehouse.findByIdAndDelete(id);
+  await prisma.warehouse.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

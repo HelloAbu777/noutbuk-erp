@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Sale from '@/models/Sale';
-import Product from '@/models/Product';
-import Customer from '@/models/Customer';
-import Nasiya from '@/models/Nasiya';
+import prisma from '@/lib/prisma';
 import { sendToCustomer } from '@/lib/telegram';
 
 function fmt(n: number) {
@@ -16,16 +12,19 @@ export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
   const { searchParams } = new URL(req.url);
   const today = searchParams.get('today');
 
   if (today) {
     const start = new Date(); start.setHours(0, 0, 0, 0);
     const end = new Date(); end.setHours(23, 59, 59, 999);
-    const sales = await Sale.find({ date: { $gte: start, $lte: end } })
-      .sort({ date: -1 })
-      .lean();
+    const sales = await prisma.sale.findMany({
+      where: {
+        date: { gte: start, lte: end },
+      },
+      include: { items: true },
+      orderBy: { date: 'desc' },
+    });
     return NextResponse.json(sales);
   }
 
@@ -49,11 +48,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Nasiya uchun mijoz tanlash shart' }, { status: 400 });
   }
 
-  await connectDB();
-
   // Validate products & quantity
   for (const item of items) {
-    const product = await Product.findById(item.productId);
+    const product = await prisma.product.findUnique({ where: { id: item.productId } });
     if (!product || product.status === 'archived') {
       return NextResponse.json(
         { error: `Mahsulot topilmadi: ${item.productName}` },
@@ -70,7 +67,7 @@ export async function POST(req: Request) {
 
   let customer = null;
   if (customerId) {
-    customer = await Customer.findById(customerId);
+    customer = await prisma.customer.findUnique({ where: { id: customerId } });
     if (!customer) {
       return NextResponse.json({ error: 'Mijoz topilmadi' }, { status: 400 });
     }
@@ -81,19 +78,24 @@ export async function POST(req: Request) {
   const saleItems = [];
 
   for (const item of items) {
-    const product = await Product.findById(item.productId);
+    const product = await prisma.product.findUnique({ where: { id: item.productId } });
+    if (!product) continue;
+    
     total += product.sellPrice * item.quantity;
     totalCost += product.buyPrice * item.quantity;
 
     saleItems.push({
-      product: product._id,
+      productId: product.id,
       productName: product.name,
       quantity: item.quantity,
       buyPrice: product.buyPrice,
       sellPrice: product.sellPrice,
     });
 
-    await Product.findByIdAndUpdate(product._id, { $inc: { quantity: -item.quantity } });
+    await prisma.product.update({
+      where: { id: product.id },
+      data: { quantity: { decrement: item.quantity } },
+    });
   }
 
   // Validate aralash amounts
@@ -108,43 +110,49 @@ export async function POST(req: Request) {
     }
   }
 
-  const sale = await Sale.create({
-    items: saleItems,
-    total,
-    totalCost,
-    paymentType,
-    naqtAmount: paymentType === 'aralash' ? Number(naqtAmount) : undefined,
-    kartaAmount: paymentType === 'aralash' ? Number(kartaAmount) : undefined,
-    customer: customer?._id,
-    customerName: customer?.name,
-    createdBy: session.user.id,
-    createdByName: session.user.name,
-    date: new Date(),
+  const sale = await prisma.sale.create({
+    data: {
+      total,
+      totalCost,
+      paymentType,
+      naqtAmount: paymentType === 'aralash' ? Number(naqtAmount) : undefined,
+      kartaAmount: paymentType === 'aralash' ? Number(kartaAmount) : undefined,
+      customerId: customer?.id,
+      customerName: customer?.name,
+      createdById: session.user.id,
+      createdByName: session.user.name,
+      date: new Date(),
+      items: {
+        create: saleItems,
+      },
+    },
+    include: { items: true },
   });
 
   if (paymentType === 'nasiya' && customer) {
-    await Customer.findByIdAndUpdate(customer._id, { $inc: { debt: total } });
-    await Nasiya.create({
-      customer: customer._id,
-      customerName: customer.name,
-      customerPhone: customer.phone,
-      sale: sale._id,
-      totalAmount: total,
-      paidAmount: 0,
-      remainingAmount: total,
-      status: 'open',
-      createdBy: session.user.id,
-      createdByName: session.user.name,
-      date: new Date(),
+    await prisma.customer.update({
+      where: { id: customer.id },
+      data: { debt: { increment: total } },
+    });
+    
+    await prisma.nasiya.create({
+      data: {
+        customerId: customer.id,
+        customerName: customer.name,
+        saleId: sale.id,
+        totalAmount: total,
+        paidAmount: 0,
+        remainingAmount: total,
+        status: 'active',
+      },
     });
 
-    // Mijozga avtomatik Telegram xabar
+    // Mijozga avtomatik xabar
     const itemList = saleItems.map(i => `• ${i.productName} × ${i.quantity}`).join('\n');
     const msgText = `🛍️ Nasiya rasmiylashtirildi!\n\n${itemList}\n\nJami qarz: ${fmt(total)}\n\nIloji boricha tez to'lang!`;
     await sendToCustomer({
       customerName: customer.name,
       customerPhone: customer.phone,
-      telegramChatId: customer.telegramChatId || '',
       type: 'sotuv_tasdiq',
       messageText: msgText,
       createdById: session.user.id,
@@ -152,5 +160,5 @@ export async function POST(req: Request) {
     });
   }
 
-  return NextResponse.json({ success: true, saleId: sale._id, total }, { status: 201 });
+  return NextResponse.json({ success: true, saleId: sale.id, total }, { status: 201 });
 }

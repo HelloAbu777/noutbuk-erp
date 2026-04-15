@@ -13,7 +13,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     where: { id },
     data: body,
   });
-  return NextResponse.json(customer);
+  
+  const transformed = { ...customer, _id: customer.id };
+  return NextResponse.json(transformed);
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {

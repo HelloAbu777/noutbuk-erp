@@ -1,28 +1,19 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Order from '@/models/Order';
+import prisma from '@/lib/prisma';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const { action, reason } = await req.json();
-  await connectDB();
+  const { action } = await req.json();
 
   if (action === 'accept') {
-    await Order.findByIdAndUpdate(id, {
-      status: 'accepted',
-      acceptedBy: session.user.id,
-      acceptedByName: session.user.name,
-    });
+    await prisma.order.update({ where: { id }, data: { status: 'accepted' } });
   } else if (action === 'reject') {
-    await Order.findByIdAndUpdate(id, {
-      status: 'rejected',
-      rejectedReason: reason || '',
-    });
+    await prisma.order.update({ where: { id }, data: { status: 'rejected' } });
   } else {
     return NextResponse.json({ error: "Noto'g'ri amal" }, { status: 400 });
   }

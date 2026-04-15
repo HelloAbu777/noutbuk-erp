@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Order from '@/models/Order';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
-  const orders = await Order.find().sort({ createdAt: -1 }).lean();
-  return NextResponse.json(orders);
+  const orders = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { items: true },
+  });
+  return NextResponse.json(orders.map(o => ({ ...o, _id: o.id })));
 }
 
 export async function POST(req: Request) {
@@ -18,12 +19,32 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  await connectDB();
-  const order = await Order.create({
-    ...body,
-    yordamchi: session.user.id,
-    yordamchiName: session.user.name,
-    status: 'pending',
+  const { customerName, customerPhone, totalAmount, advancePayment, deliveryDate, note, items } = body;
+
+  const remaining = Number(totalAmount) - Number(advancePayment || 0);
+
+  const order = await prisma.order.create({
+    data: {
+      yordamchiId: session.user.id,
+      yordamchiName: session.user.name,
+      customerName,
+      customerPhone,
+      totalAmount: Number(totalAmount),
+      advancePayment: Number(advancePayment) || 0,
+      remainingAmount: remaining,
+      deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+      note: note || null,
+      status: 'pending',
+      items: items?.length ? {
+        create: items.map((item: any) => ({
+          productId: item.productId,
+          productName: item.productName,
+          quantity: Number(item.quantity),
+          price: Number(item.price),
+        })),
+      } : undefined,
+    },
+    include: { items: true },
   });
-  return NextResponse.json(order, { status: 201 });
+  return NextResponse.json({ ...order, _id: order.id }, { status: 201 });
 }

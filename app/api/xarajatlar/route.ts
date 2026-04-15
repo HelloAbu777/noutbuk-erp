@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Expense from '@/models/Expense';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
-  const expenses = await Expense.find().sort({ date: -1 }).lean();
-  return NextResponse.json(expenses);
+  const expenses = await prisma.expense.findMany({ orderBy: { date: 'desc' } });
+  return NextResponse.json(expenses.map(e => ({ ...e, _id: e.id })));
 }
 
 export async function POST(req: Request) {
@@ -18,7 +16,10 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  await connectDB();
-  const expense = await Expense.create({ ...body, createdBy: session.user.id, createdByName: session.user.name });
-  return NextResponse.json(expense, { status: 201 });
+  const { title, amount, category, description } = body;
+
+  const expense = await prisma.expense.create({
+    data: { title, amount: Number(amount), category, description: description || null },
+  });
+  return NextResponse.json({ ...expense, _id: expense.id }, { status: 201 });
 }

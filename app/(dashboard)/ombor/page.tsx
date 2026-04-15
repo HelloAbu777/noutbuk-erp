@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import {
   Search, Plus, ArrowRight, Warehouse, X, Pencil, Trash2,
   LayoutGrid, LayoutList, History, PackagePlus,
-  ArrowDownCircle, ArrowUpCircle, Printer, ShoppingCart,
+  ArrowDownCircle, ArrowUpCircle, Printer,
 } from 'lucide-react';
 
 interface WItem {
@@ -27,15 +27,22 @@ function ItemModal({ item, onClose, onSave }: {
   item: Partial<WItem> | null; onClose: () => void; onSave: () => void;
 }) {
   const isEdit = !!item?._id;
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [form, setForm] = useState({
     name: item?.name ?? '', category: item?.category ?? 'Noutbuk',
     quantity: item?.quantity?.toString() ?? '',
     buyPrice: item?.buyPrice?.toString() ?? '',
     sellPrice: item?.sellPrice?.toString() ?? '',
     description: item?.description ?? '',
+    supplierId: '',
+    supplierName: item?.supplierName ?? '',
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+
+  useEffect(() => {
+    fetch('/api/tamirotchilar').then(r => r.json()).then(d => setSuppliers(Array.isArray(d) ? d : []));
+  }, []);
 
   const handleSubmit = async () => {
     if (!form.name || !form.buyPrice || !form.sellPrice || !form.quantity) {
@@ -48,6 +55,7 @@ function ItemModal({ item, onClose, onSave }: {
       sellPrice: parseFloat(form.sellPrice),
       barcode: isEdit ? item?.barcode : undefined, // Keep existing barcode on edit, API generates for new
       description: form.description.trim() || undefined,
+      supplierName: form.supplierName || (suppliers.find(s => s._id === form.supplierId)?.companyName || undefined),
     };
     const res = await fetch(isEdit ? `/api/ombor/${item!._id}` : '/api/ombor', {
       method: isEdit ? 'PUT' : 'POST',
@@ -72,6 +80,23 @@ function ItemModal({ item, onClose, onSave }: {
             <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputCls}>
               {CATS.map(c => <option key={c}>{c}</option>)}
             </select></div>
+          <div>
+            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Ta'minotchi</label>
+            <select value={form.supplierId} onChange={e => {
+              const s = suppliers.find(s => s._id === e.target.value);
+              setForm(f => ({ ...f, supplierId: e.target.value, supplierName: s?.companyName || '' }));
+            }} className={inputCls}>
+              <option value="">— Tanlang —</option>
+              {suppliers.map(s => <option key={s._id} value={s._id}>{s.companyName}</option>)}
+            </select>
+          </div>
+          {!form.supplierId && (
+            <div>
+              <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Ta'minotchi ismi (qo'lda)</label>
+              <input value={form.supplierName} onChange={e => setForm(f => ({ ...f, supplierName: e.target.value }))} 
+                placeholder="Agar ro'yxatda yo'q bo'lsa..." className={inputCls} />
+            </div>
+          )}
           <div className="grid grid-cols-3 gap-3">
             {[['quantity', 'Soni *'], ['buyPrice', 'Sotib olish *'], ['sellPrice', 'Sotuv narxi *']].map(([k, l]) => (
               <div key={k}><label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{l}</label>
@@ -338,111 +363,8 @@ function OmmaviyKirimModal({ items, onClose, onSaved }: {
   );
 }
 
-// ─── Ta'minotchidan Xarid Modali ──────────────────────────────────────────────
-function PurchaseModal({ onClose, onSave }: { onClose: () => void; onSave: () => void }) {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [form, setForm] = useState({
-    supplierId: '', supplierName: '', productName: '', category: 'Noutbuk',
-    quantity: '', buyPrice: '', sellPrice: '', paidAmount: '', note: '',
-  });
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState('');
-
-  useEffect(() => {
-    fetch('/api/tamirotchilar').then(r => r.json()).then(d => setSuppliers(Array.isArray(d) ? d : []));
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!form.productName || !form.buyPrice || !form.sellPrice || !form.quantity) {
-      setErr("Majburiy maydonlar to'ldirilmadi"); return;
-    }
-    setSaving(true);
-    const body = {
-      supplierId: form.supplierId || undefined,
-      supplierName: form.supplierName || (suppliers.find(s => s._id === form.supplierId)?.companyName || 'Noma\'lum'),
-      productName: form.productName,
-      category: form.category,
-      quantity: parseInt(form.quantity),
-      buyPrice: parseFloat(form.buyPrice),
-      sellPrice: parseFloat(form.sellPrice),
-      paidAmount: parseFloat(form.paidAmount) || 0,
-      note: form.note,
-    };
-    const res = await fetch('/api/xaridlar', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) { const d = await res.json(); setErr(d.error || 'Xatolik'); setSaving(false); return; }
-    onSave();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-900">
-          <h3 className="font-semibold text-gray-900 dark:text-white">Ta'minotchidan xarid</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400"><X size={16} /></button>
-        </div>
-        <div className="p-4 space-y-3">
-          <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Ta'minotchi</label>
-            <select value={form.supplierId} onChange={e => {
-              const s = suppliers.find(s => s._id === e.target.value);
-              setForm(f => ({ ...f, supplierId: e.target.value, supplierName: s?.companyName || '' }));
-            }} className={inputCls}>
-              <option value="">— Tanlang —</option>
-              {suppliers.map(s => <option key={s._id} value={s._id}>{s.companyName}</option>)}
-            </select>
-          </div>
-          {!form.supplierId && (
-            <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Ta'minotchi ismi (qo'lda)</label>
-              <input value={form.supplierName} onChange={e => setForm(f => ({ ...f, supplierName: e.target.value }))} className={inputCls} />
-            </div>
-          )}
-          <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Mahsulot nomi *</label>
-            <input value={form.productName} onChange={e => setForm(f => ({ ...f, productName: e.target.value }))} className={inputCls} />
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Kategoriya</label>
-            <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputCls}>
-              {CATS.map(c => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            {([['quantity', 'Soni *'], ['buyPrice', 'Sotib olish *'], ['sellPrice', 'Sotuv narxi *']] as const).map(([k, l]) => (
-              <div key={k}>
-                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{l}</label>
-                <input type="number" value={form[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} className={inputCls} />
-              </div>
-            ))}
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">To'langan summa</label>
-            <input type="number" value={form.paidAmount} onChange={e => setForm(f => ({ ...f, paidAmount: e.target.value }))} className={inputCls} />
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Izoh</label>
-            <input value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} className={inputCls} />
-          </div>
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-            <p className="text-xs text-blue-600 dark:text-blue-400">
-              📦 Mahsulot avtomatik omborga qo'shiladi
-            </p>
-          </div>
-          {err && <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{err}</p>}
-          <button onClick={handleSubmit} disabled={saving}
-            className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-medium rounded-lg text-sm">
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main Page ─────────────────────────────────────────────────────────────────
+
 export default function OmborPage() {
   const { status } = useSession();
   const router = useRouter();
@@ -455,7 +377,6 @@ export default function OmborPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [showHarakatTarixi, setShowHarakatTarixi] = useState(false);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
@@ -553,9 +474,6 @@ export default function OmborPage() {
           onClose={() => setModalItem(false)} onSave={() => { setModalItem(false); load(); }} />
       )}
       {showHarakatTarixi && <HarakatTarixiModal onClose={() => setShowHarakatTarixi(false)} />}
-      {showPurchaseModal && (
-        <PurchaseModal onClose={() => setShowPurchaseModal(false)} onSave={() => { setShowPurchaseModal(false); load(); }} />
-      )}
 
       <div className="pt-14 pb-16 lg:pb-0 min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="p-4 lg:p-6">
@@ -577,11 +495,6 @@ export default function OmborPage() {
               <button onClick={() => setViewMode('table')} className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}><LayoutList size={16} /></button>
               <button onClick={() => setViewMode('card')} className={`p-2 rounded-md transition-colors ${viewMode === 'card' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}><LayoutGrid size={16} /></button>
             </div>
-
-            <button onClick={() => setShowPurchaseModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap">
-              <ShoppingCart size={16} /> Ta'minotchidan olish
-            </button>
 
             <button onClick={() => setModalItem(null)}
               className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap">

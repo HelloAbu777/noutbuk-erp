@@ -1,17 +1,20 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Warehouse from '@/models/Warehouse';
-import mongoose from 'mongoose';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
-  const items = await Warehouse.find({ status: 'in_warehouse' }).sort({ createdAt: -1 }).lean();
-  return NextResponse.json(items);
+  const items = await prisma.warehouse.findMany({
+    where: { status: 'in_warehouse' },
+    orderBy: { createdAt: 'desc' },
+  });
+  
+  // Transform id to _id for backward compatibility
+  const transformed = items.map(i => ({ ...i, _id: i.id }));
+  return NextResponse.json(transformed);
 }
 
 export async function POST(req: Request) {
@@ -19,21 +22,23 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  await connectDB();
   
   // Generate barcode if not provided - check both Warehouse and Product collections
   if (!body.barcode) {
     const [warehouseItems, products] = await Promise.all([
-      Warehouse.find({ barcode: { $exists: true, $ne: null } }).select('barcode').lean(),
-      mongoose.connection.db!.collection('products').find(
-        { barcode: { $exists: true, $ne: null } },
-        { projection: { barcode: 1 } }
-      ).toArray()
+      prisma.warehouse.findMany({
+        where: { barcode: { not: null } },
+        select: { barcode: true },
+      }),
+      prisma.product.findMany({
+        where: { barcode: { not: null } },
+        select: { barcode: true },
+      }),
     ]);
     
     const existingBarcodes = new Set([
       ...warehouseItems.map(i => i.barcode).filter(b => b && /^\d{6}$/.test(b)),
-      ...products.map((p: any) => p.barcode).filter(b => b && /^\d{6}$/.test(b))
+      ...products.map(p => p.barcode).filter(b => b && /^\d{6}$/.test(b)),
     ]);
     
     // Find first available barcode starting from 000001
@@ -49,6 +54,7 @@ export async function POST(req: Request) {
     body.barcode = newBarcode || String(Date.now()).slice(-6); // Fallback
   }
   
-  const item = await Warehouse.create(body);
-  return NextResponse.json(item, { status: 201 });
+  const item = await prisma.warehouse.create({ data: body });
+  const transformed = { ...item, _id: item.id };
+  return NextResponse.json(transformed, { status: 201 });
 }

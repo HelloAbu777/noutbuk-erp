@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Settings from '@/models/Settings';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
-  let settings = await Settings.findOne().lean();
-  if (!settings) settings = await Settings.create({});
+  let settings = await prisma.settings.findFirst();
+  if (!settings) {
+    settings = await prisma.settings.create({ data: {} });
+  }
   return NextResponse.json(settings);
 }
 
@@ -19,7 +19,18 @@ export async function PUT(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  await connectDB();
-  const settings = await Settings.findOneAndUpdate({}, { $set: body }, { upsert: true, new: true });
+  const { shopName, address, phone, lowStockThreshold, currency } = body;
+
+  let settings = await prisma.settings.findFirst();
+  if (!settings) {
+    settings = await prisma.settings.create({
+      data: { shopName, address, phone, lowStockThreshold: Number(lowStockThreshold) || 5, currency },
+    });
+  } else {
+    settings = await prisma.settings.update({
+      where: { id: settings.id },
+      data: { shopName, address, phone, lowStockThreshold: Number(lowStockThreshold) || 5, currency },
+    });
+  }
   return NextResponse.json(settings);
 }

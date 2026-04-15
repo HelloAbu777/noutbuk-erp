@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Purchase from '@/models/Purchase';
-import Warehouse from '@/models/Warehouse';
-import Supplier from '@/models/Supplier';
+import prisma from '@/lib/prisma';
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -13,29 +10,24 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   }
 
   const { id } = await params;
-  await connectDB();
 
-  // Find the purchase
-  const purchase = await Purchase.findById(id);
-  if (!purchase) {
-    return NextResponse.json({ error: 'Xarid topilmadi' }, { status: 404 });
-  }
+  const purchase = await prisma.purchase.findUnique({ where: { id } });
+  if (!purchase) return NextResponse.json({ error: 'Xarid topilmadi' }, { status: 404 });
 
-  // Remove from warehouse if exists
-  await Warehouse.deleteOne({ purchaseId: id });
+  // Ombordan o'chirish
+  await prisma.warehouse.deleteMany({ where: { purchaseId: id } });
 
-  // Update supplier totals
-  if (purchase.supplier) {
-    await Supplier.findByIdAndUpdate(purchase.supplier, {
-      $inc: {
-        totalPurchased: -purchase.totalAmount,
-        totalPaid: -purchase.paidAmount,
+  // Ta'minotchi statistikasini qaytarish
+  if (purchase.supplierId) {
+    await prisma.supplier.update({
+      where: { id: purchase.supplierId },
+      data: {
+        totalPurchased: { decrement: purchase.totalAmount },
+        totalPaid: { decrement: purchase.paidAmount },
       },
     });
   }
 
-  // Delete the purchase
-  await Purchase.findByIdAndDelete(id);
-
+  await prisma.purchase.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

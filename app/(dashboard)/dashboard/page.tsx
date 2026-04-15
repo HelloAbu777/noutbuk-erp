@@ -25,8 +25,9 @@ async function getDashboardData() {
       where: { date: { gte: sevenDaysAgo } },
       include: { items: true }
     }),
-    prisma.sale.findMany({ 
-      where: { date: { gte: weekStart } }
+    prisma.sale.findMany({
+      where: { date: { gte: weekStart } },
+      include: { items: true }
     }),
     prisma.expense.findMany({ 
       where: { date: { gte: weekStart } }

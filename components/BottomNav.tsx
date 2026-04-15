@@ -2,23 +2,27 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { LayoutDashboard, ShoppingCart, Warehouse, Package, CreditCard } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const items = [
-  { title: 'Bosh', href: '/dashboard', icon: LayoutDashboard },
-  { title: 'Sotuv', href: '/sotuv', icon: ShoppingCart },
-  { title: 'Ombor', href: '/ombor', icon: Warehouse },
-  { title: 'Tovarlar', href: '/tovarlar', icon: Package },
-  { title: 'Nasiya', href: '/nasiya', icon: CreditCard },
+  { title: 'Bosh', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'yordamchi'] },
+  { title: 'Sotuv', href: '/sotuv', icon: ShoppingCart, roles: ['admin', 'kassir', 'yordamchi'] },
+  { title: 'Ombor', href: '/ombor', icon: Warehouse, roles: ['admin'] },
+  { title: 'Tovarlar', href: '/tovarlar', icon: Package, roles: ['admin', 'yordamchi'] },
+  { title: 'Nasiya', href: '/nasiya', icon: CreditCard, roles: ['admin', 'kassir'] },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const role = (session?.user?.role as string) || 'kassir';
+  const filtered = items.filter(item => item.roles.includes(role));
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-30 flex lg:hidden">
-      {items.map(item => {
+      {filtered.map(item => {
         const Icon = item.icon;
         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
         return (

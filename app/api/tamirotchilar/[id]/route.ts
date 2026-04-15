@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Supplier from '@/models/Supplier';
+import prisma from '@/lib/prisma';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -10,9 +9,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   const { id } = await params;
   const body = await req.json();
-  await connectDB();
-  const supplier = await Supplier.findByIdAndUpdate(id, { $set: body }, { new: true });
-  return NextResponse.json(supplier);
+  const { companyName, contactPerson, phone, address } = body;
+
+  const supplier = await prisma.supplier.update({
+    where: { id },
+    data: { companyName, contactPerson, phone, address },
+  });
+  return NextResponse.json({ ...supplier, _id: supplier.id });
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -20,7 +23,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  await connectDB();
-  await Supplier.findByIdAndUpdate(id, { status: 'inactive' });
+  await prisma.supplier.update({ where: { id }, data: { status: 'inactive' } });
   return NextResponse.json({ success: true });
 }

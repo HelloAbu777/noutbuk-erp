@@ -34,7 +34,7 @@ const STATUS_STYLE: Record<MessageStatus, string> = {
   navbatda: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
 };
 
-interface Customer { _id: string; name: string; phone: string; telegramChatId?: string; }
+interface Customer { _id: string; name: string; phone: string; }
 
 function SendModal({ onClose, onSave }: { onClose: () => void; onSave: () => void }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -86,17 +86,10 @@ function SendModal({ onClose, onSave }: { onClose: () => void; onSave: () => voi
               <option value="">Mijoz tanlang...</option>
               {customers.map(c => (
                 <option key={c._id} value={c._id}>
-                  {c.telegramChatId ? '✅ ' : '   '}{c.name} — {c.phone}
+                  {c.name} — {c.phone}
                 </option>
               ))}
             </select>
-            {selectedCustomer && (
-              <p className={`text-xs mt-1 ${selectedCustomer.telegramChatId ? 'text-green-600' : 'text-amber-500'}`}>
-                {selectedCustomer.telegramChatId
-                  ? '✅ Telegram ulangan — xabar to\'g\'ridan-to\'g\'ri ketadi'
-                  : '⚠️ Telegram ulanmagan — admin chatiga yuboriladi'}
-              </p>
-            )}
           </div>
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Ism *</label>

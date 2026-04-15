@@ -1,6 +1,4 @@
-import connectDB from './mongoose';
-import Settings from '@/models/Settings';
-import Message from '@/models/Message';
+import prisma from './prisma';
 
 // Telegramga xabar yuborish
 async function send(token: string, chatId: string, text: string) {
@@ -23,22 +21,18 @@ export async function sendToCustomer({
   customerPhone,
   type,
   messageText,
-  createdById,
   createdByName,
 }: {
   customerName: string;
   customerPhone: string;
-  telegramChatId?: string;
   type: 'qarz_eslatma' | 'sotuv_tasdiq' | 'qarz_tolandi';
   messageText: string;
   createdById?: string;
   createdByName?: string;
 }) {
-  await connectDB();
-
-  const settings = await Settings.findOne().lean() as any;
-  const token: string = settings?.telegramBotToken || '';
-  const chatId: string = settings?.telegramChatId || '';
+  const settings = await prisma.settings.findFirst();
+  const token: string = (settings as any)?.telegramBotToken || '';
+  const chatId: string = (settings as any)?.telegramChatId || '';
 
   let status: 'yuborildi' | 'xato' | 'navbatda' = 'navbatda';
   let errorText: string | undefined;
@@ -49,16 +43,16 @@ export async function sendToCustomer({
     errorText = result.error;
   }
 
-  await Message.create({
-    customerName,
-    customerPhone,
-    type,
-    messageText,
-    status,
-    errorText,
-    createdBy: createdById,
-    createdByName,
-    date: new Date(),
+  await prisma.message.create({
+    data: {
+      customerName,
+      customerPhone,
+      type,
+      messageText,
+      status,
+      errorText: errorText || null,
+      createdByName: createdByName || null,
+    },
   });
 
   return status;
