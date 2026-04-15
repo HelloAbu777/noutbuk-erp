@@ -114,7 +114,15 @@ function BarcodeModal({ product, onClose, onBarcodeGenerated }: {
 function Modal({ product, onClose, onSave }: {
   product: Partial<Product> | null; onClose: () => void; onSave: () => void;
 }) {
+  // Faqat tahrirlash uchun
   const isEdit = !!product?._id;
+  
+  if (!isEdit) {
+    // Yangi mahsulot qo'shish uchun bu modal ishlatilmaydi
+    onClose();
+    return null;
+  }
+  
   const [form, setForm] = useState({
     name: product?.name ?? '', category: product?.category ?? 'Noutbuk',
     buyPrice: product?.buyPrice?.toString() ?? '', markup: '',
@@ -143,11 +151,11 @@ function Modal({ product, onClose, onSave }: {
       name: form.name.trim(), category: form.category,
       buyPrice: parseFloat(form.buyPrice), sellPrice: parseFloat(form.sellPrice),
       quantity: parseInt(form.quantity) || 0,
-      barcode: isEdit ? form.barcode.trim() : undefined, // API will generate for new products
+      barcode: form.barcode.trim(),
       description: form.description.trim() || undefined, status: 'active',
     };
-    const res = await fetch(isEdit ? `/api/products/${product!._id}` : '/api/products', {
-      method: isEdit ? 'PUT' : 'POST',
+    const res = await fetch(`/api/products/${product!._id}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
@@ -507,6 +515,177 @@ function OmmaviyKirimModal({ products, warehouseMap, onClose, onSaved }: {
   );
 }
 
+// ─── Ombordan Olib Kelish Modal ───────────────────────────────────────────────
+interface WarehouseItem {
+  _id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  buyPrice: number;
+  sellPrice: number;
+  barcode?: string;
+  supplierName?: string;
+}
+
+function OmborSelectModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const [items, setItems] = useState<WarehouseItem[]>([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<WarehouseItem | null>(null);
+  const [quantity, setQuantity] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/ombor')
+      .then(r => r.json())
+      .then(d => { setItems(Array.isArray(d) ? d : []); setLoading(false); });
+  }, []);
+
+  const filtered = items.filter(i =>
+    i.name.toLowerCase().includes(search.toLowerCase()) ||
+    (i.barcode && i.barcode.includes(search))
+  );
+
+  const handleSelect = (item: WarehouseItem) => {
+    setSelected(item);
+    setQuantity(item.quantity.toString());
+  };
+
+  const handleSave = async () => {
+    if (!selected || !quantity || parseInt(quantity) <= 0) return;
+    const qty = parseInt(quantity);
+    if (qty > selected.quantity) {
+      alert(`Omborда faqat ${selected.quantity} ta bor!`);
+      return;
+    }
+
+    setSaving(true);
+    const res = await fetch(`/api/ombor/${selected._id}/chiqar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantity: qty }),
+    });
+
+    if (res.ok) {
+      onSaved();
+    } else {
+      alert('Xatolik yuz berdi');
+      setSaving(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && search.trim()) {
+      const match = filtered.find(i => i.barcode === search.trim());
+      if (match) {
+        handleSelect(match);
+        setSearch('');
+      }
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Ombordan olib kelish</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Mahsulot nomi yoki barkod..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400"
+              autoFocus
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            💡 Barkodni skanerlang yoki mahsulot nomini yozing
+          </p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {loading ? (
+            <div className="text-center py-8 text-gray-400">Yuklanmoqda...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <Package size={36} className="mx-auto mb-2 opacity-30" />
+              <p className="text-sm">Omborда mahsulot topilmadi</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filtered.map(item => (
+                <button
+                  key={item._id}
+                  onClick={() => handleSelect(item)}
+                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                    selected?._id === item._id
+                      ? 'border-blue-400 bg-blue-50 dark:bg-blue-500/10'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                  }`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{item.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {item.category} • {item.supplierName || 'Noma\'lum'}
+                      </p>
+                      {item.barcode && (
+                        <p className="text-xs text-gray-400 font-mono mt-1">{item.barcode}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        {item.quantity} ta
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {item.sellPrice.toLocaleString('uz-UZ')}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {selected && (
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{selected.name}</p>
+                <p className="text-xs text-gray-500">Omborда: {selected.quantity} ta</p>
+              </div>
+              <input
+                type="number"
+                value={quantity}
+                onChange={e => setQuantity(e.target.value)}
+                max={selected.quantity}
+                min="1"
+                placeholder="Soni"
+                className="w-24 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:border-blue-400"
+              />
+            </div>
+            <button
+              onClick={handleSave}
+              disabled={saving || !quantity || parseInt(quantity) <= 0}
+              className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-medium rounded-lg text-sm">
+              {saving ? 'Saqlanmoqda...' : 'Do\'konga olib kelish'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function TovarlarPage() {
   const { status } = useSession();
@@ -521,6 +700,7 @@ export default function TovarlarPage() {
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [showHarakatTarixi, setShowHarakatTarixi] = useState(false);
   const [showOmmaviyKirim, setShowOmmaviyKirim] = useState(false);
+  const [showOmborSelect, setShowOmborSelect] = useState(false);
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
@@ -623,6 +803,12 @@ export default function TovarlarPage() {
           onBarcodeGenerated={(code) => handleBarcodeGenerated(barcodeProduct._id, code)} />
       )}
       {showHarakatTarixi && <HarakatTarixiModal onClose={() => setShowHarakatTarixi(false)} />}
+      {showOmborSelect && (
+        <OmborSelectModal 
+          onClose={() => setShowOmborSelect(false)} 
+          onSaved={() => { setShowOmborSelect(false); load(); }} 
+        />
+      )}
       {showOmmaviyKirim && (
         <OmmaviyKirimModal products={products} warehouseMap={warehouseMap}
           onClose={() => setShowOmmaviyKirim(false)}
@@ -666,10 +852,10 @@ export default function TovarlarPage() {
               </button>
             </div>
 
-            {/* Mahsulot qo'shish */}
-            <button onClick={() => setModalProduct(null)}
+            {/* Ombordan olib kelish */}
+            <button onClick={() => setShowOmborSelect(true)}
               className="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap">
-              <Plus size={16} /> Mahsulot qo'shish
+              <Plus size={16} /> Ombordan olib kelish
             </button>
           </div>
 
