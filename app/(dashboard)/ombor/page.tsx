@@ -31,7 +31,7 @@ function ItemModal({ item, onClose, onSave }: {
     quantity: item?.quantity?.toString() ?? '',
     buyPrice: item?.buyPrice?.toString() ?? '',
     sellPrice: item?.sellPrice?.toString() ?? '',
-    barcode: item?.barcode ?? '', description: item?.description ?? '',
+    description: item?.description ?? '',
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
@@ -45,7 +45,7 @@ function ItemModal({ item, onClose, onSave }: {
       name: form.name.trim(), category: form.category,
       quantity: parseInt(form.quantity), buyPrice: parseFloat(form.buyPrice),
       sellPrice: parseFloat(form.sellPrice),
-      barcode: form.barcode.trim() || undefined,
+      barcode: isEdit ? item?.barcode : undefined, // Keep existing barcode on edit, API generates for new
       description: form.description.trim() || undefined,
     };
     const res = await fetch(isEdit ? `/api/ombor/${item!._id}` : '/api/ombor', {
@@ -77,8 +77,19 @@ function ItemModal({ item, onClose, onSave }: {
                 <input type="number" value={(form as any)[k]} onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} className={inputCls} /></div>
             ))}
           </div>
-          <div><label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Barkod</label>
-            <input value={form.barcode} onChange={e => setForm(f => ({ ...f, barcode: e.target.value }))} className={inputCls} /></div>
+          {!isEdit && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                🏷️ Barkod avtomatik yaratiladi (6 raqam)
+              </p>
+            </div>
+          )}
+          {isEdit && item?.barcode && (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+              <label className="text-xs text-gray-500 mb-1 block">Barkod</label>
+              <p className="text-sm font-mono text-gray-900 dark:text-white">{item.barcode}</p>
+            </div>
+          )}
           <div><label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Tavsif</label>
             <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className={inputCls} /></div>
           {err && <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{err}</p>}
