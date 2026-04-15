@@ -1,8 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import connectDB from './mongoose';
-import User from '@/models/User';
+import prisma from './prisma';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,20 +14,21 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.login || !credentials?.password) return null;
 
-        await connectDB();
-        const user = await User.findOne({
-          login: credentials.login,
-          status: 'active',
+        const user = await prisma.user.findFirst({
+          where: {
+            email: credentials.login,
+          },
         });
+        
         if (!user) return null;
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
         return {
-          id: user._id.toString(),
+          id: user.id,
           name: user.name,
-          login: user.login,
+          login: user.email,
           role: user.role,
         };
       },
