@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import Product from '@/models/Product';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  await connectDB();
-  const products = await Product.find({ status: 'active' }).sort({ name: 1 }).lean();
+  const products = await prisma.product.findMany({
+    where: { status: 'active' },
+    orderBy: { name: 'asc' },
+  });
+  
   return NextResponse.json(products);
 }
 
@@ -18,14 +20,16 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  await connectDB();
   
   // Generate barcode if not provided
   if (!body.barcode) {
     // Get all existing barcodes
-    const existingProducts = await Product.find({ barcode: { $exists: true, $ne: null } })
-      .select('barcode')
-      .lean();
+    const existingProducts = await prisma.product.findMany({
+      where: {
+        barcode: { not: null },
+      },
+      select: { barcode: true },
+    });
     
     const existingBarcodes = new Set(
       existingProducts
@@ -46,6 +50,9 @@ export async function POST(req: Request) {
     body.barcode = newBarcode || String(Date.now()).slice(-6); // Fallback
   }
   
-  const product = await Product.create(body);
+  const product = await prisma.product.create({
+    data: body,
+  });
+  
   return NextResponse.json(product, { status: 201 });
 }
