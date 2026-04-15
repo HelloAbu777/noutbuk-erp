@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongoose';
-import mongoose from 'mongoose';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -11,30 +10,29 @@ export async function GET() {
   }
 
   try {
-    await connectDB();
-    const db = mongoose.connection.db!;
-    
-    // Get all collections with counts
-    const collections = await db.listCollections().toArray();
-    const stats: Record<string, number> = {};
-    
-    for (const col of collections) {
-      const count = await db.collection(col.name).countDocuments();
-      stats[col.name] = count;
-    }
-    
-    return NextResponse.json({ 
+    const [products, customers, sales, nasiya, expenses, suppliers, warehouse, workers, users] =
+      await Promise.all([
+        prisma.product.count(),
+        prisma.customer.count(),
+        prisma.sale.count(),
+        prisma.nasiya.count(),
+        prisma.expense.count(),
+        prisma.supplier.count(),
+        prisma.warehouse.count(),
+        prisma.worker.count(),
+        prisma.user.count(),
+      ]);
+
+    return NextResponse.json({
       success: true,
-      message: 'Database ishlayapti!',
-      collections: stats,
-      totalCollections: collections.length
+      message: 'PostgreSQL (Prisma) ishlayapti!',
+      tables: { products, customers, sales, nasiya, expenses, suppliers, warehouse, workers, users },
     });
   } catch (error: any) {
-    console.error('Database test error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: false,
       error: error.message,
-      hint: 'MongoDB ulanish muammosi - internet yoki IP whitelist tekshiring'
+      hint: 'PostgreSQL ulanish muammosi',
     }, { status: 500 });
   }
 }
