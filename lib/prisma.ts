@@ -6,12 +6,13 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-// Create PostgreSQL connection pool
-const connectionString = 'postgresql://postgres:12345@localhost:5432/qaqnus?schema=public';
+const connectionString =
+  process.env.DATABASE_URL ||
+  'postgresql://postgres:12345@localhost:5432/qaqnus?schema=public';
+
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
-// Create Prisma Client with adapter
 const prisma = global.prisma || new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== 'production') {
