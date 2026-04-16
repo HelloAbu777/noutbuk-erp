@@ -62,13 +62,12 @@ export default function BuyurtmalarPage() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
     fetch('/api/buyurtmalar').then(r => r.json()).then(d => { setOrders(Array.isArray(d) ? d : []); setLoading(false); });
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const accept = async (id: string) => {
     await fetch(`/api/buyurtmalar/${id}`, {
@@ -84,7 +83,6 @@ export default function BuyurtmalarPage() {
     return matchFilter && matchSearch;
   });
 
-  if (status === 'loading') return null;
 
   const pendingCount = orders.filter(o => o.status === 'pending').length;
 

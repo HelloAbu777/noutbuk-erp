@@ -773,10 +773,6 @@ export default function SozlamalarPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('dokon');
 
-  useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login');
-    else if (status === 'authenticated' && session?.user?.role !== 'admin') router.push('/dashboard');
-  }, [status, session, router]);
 
   return (
     <>

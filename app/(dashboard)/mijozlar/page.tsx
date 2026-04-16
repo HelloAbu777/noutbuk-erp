@@ -160,7 +160,6 @@ export default function MijozlarPage() {
   const [profileModal, setProfileModal] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     fetch('/api/customers').then(r => r.json()).then(d => {
@@ -168,7 +167,7 @@ export default function MijozlarPage() {
       setLoading(false);
     });
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm("O'chirishni tasdiqlaysizmi?")) return;
@@ -180,7 +179,6 @@ export default function MijozlarPage() {
     c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
   );
 
-  if (status === 'loading') return null;
 
   return (
     <>

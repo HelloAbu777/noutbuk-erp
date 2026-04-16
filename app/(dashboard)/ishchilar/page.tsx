@@ -268,10 +268,6 @@ export default function IshchilarPage() {
   const [modal, setModal] = useState<Partial<Worker> | null | false>(false);
   const [detail, setDetail] = useState<Worker | null>(null);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login');
-    else if (status === 'authenticated' && session?.user?.role !== 'admin') router.push('/dashboard');
-  }, [status, session, router]);
 
   const load = async () => {
     setLoading(true);
@@ -284,7 +280,7 @@ export default function IshchilarPage() {
     }
   };
 
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Ishchini o'chirishni tasdiqlaysizmi?")) return;

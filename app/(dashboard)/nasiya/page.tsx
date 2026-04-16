@@ -207,7 +207,6 @@ export default function NasiyaPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
@@ -217,7 +216,7 @@ export default function NasiyaPage() {
       setLoading(false);
     });
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const filtered = items.filter(n => {
     const matchFilter = filter === 'all' || n.status === filter;
@@ -225,7 +224,6 @@ export default function NasiyaPage() {
     return matchFilter && matchSearch;
   });
 
-  if (status === 'loading') return null;
 
   return (
     <>

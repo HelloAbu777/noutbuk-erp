@@ -35,10 +35,6 @@ export default function HisobotlarPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login');
-    else if (status === 'authenticated' && session?.user?.role !== 'admin') router.push('/dashboard');
-  }, [status, session, router]);
 
   const load = async () => {
     setLoading(true);
@@ -67,7 +63,7 @@ export default function HisobotlarPage() {
     setLoading(false);
   };
 
-  useEffect(() => { if (status === 'authenticated') load(); }, [range, status]);
+  useEffect(() => { load(); }, [range]);
 
   const handleCustomSearch = () => { if (customFrom && customTo) load(); };
 

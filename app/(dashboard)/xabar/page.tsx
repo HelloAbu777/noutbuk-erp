@@ -145,10 +145,6 @@ export default function XabarPage() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login');
-    else if (status === 'authenticated' && !['admin', 'kassir'].includes(session?.user?.role || '')) router.push('/dashboard');
-  }, [status, session, router]);
 
   const load = async () => {
     setLoading(true);
@@ -159,7 +155,7 @@ export default function XabarPage() {
     setLoading(false);
   };
 
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm("O'chirishni tasdiqlaysizmi?")) return;

@@ -378,7 +378,6 @@ export default function OmborPage() {
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [showHarakatTarixi, setShowHarakatTarixi] = useState(false);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
@@ -391,7 +390,7 @@ export default function OmborPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const sendToShop = async (id: string) => {
     setSending(id);
@@ -443,7 +442,6 @@ export default function OmborPage() {
     w.document.close();
   };
 
-  if (status === 'loading') return null;
 
   const ActionBtns = ({ item }: { item: WItem }) => (
     <div className="flex items-center justify-around" onClick={e => e.stopPropagation()}>

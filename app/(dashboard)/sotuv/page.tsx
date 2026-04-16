@@ -761,7 +761,6 @@ export default function SotuvPage() {
   useEffect(() => { productsRef.current = products; }, [products]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login');
   }, [status, router]);
 
   // Load held orders from localStorage
@@ -1047,7 +1046,6 @@ export default function SotuvPage() {
   const aralashKarta = parseFloat(kartaAmount) || 0;
   const aralashRemainder = cartTotal - aralashNaqt - aralashKarta;
 
-  if (status === 'loading') return null;
 
   return (
     <>

@@ -88,13 +88,12 @@ export default function XarajatlarPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
     fetch('/api/xarajatlar').then(r => r.json()).then(d => { setExpenses(Array.isArray(d) ? d : []); setLoading(false); });
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const remove = async (id: string) => {
     if (!confirm("O'chirilsinmi?")) return;
@@ -105,7 +104,6 @@ export default function XarajatlarPage() {
   const filtered = catFilter === 'all' ? expenses : expenses.filter(e => e.category === catFilter);
   const total = filtered.reduce((s, e) => s + e.amount, 0);
 
-  if (status === 'loading') return null;
 
   return (
     <>

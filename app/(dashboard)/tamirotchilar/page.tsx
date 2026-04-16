@@ -188,13 +188,12 @@ export default function TamirotchilarPage() {
   const [purchaseModal, setPurchaseModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
     fetch('/api/tamirotchilar').then(r => r.json()).then(d => { setSuppliers(Array.isArray(d) ? d : []); setLoading(false); });
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const remove = async (id: string) => {
     if (!confirm("O'chirilsinmi?")) return;
@@ -207,7 +206,6 @@ export default function TamirotchilarPage() {
     s.phone.includes(search)
   );
 
-  if (status === 'loading') return null;
 
   return (
     <>

@@ -702,7 +702,6 @@ export default function TovarlarPage() {
   const [showOmmaviyKirim, setShowOmmaviyKirim] = useState(false);
   const [showOmborSelect, setShowOmborSelect] = useState(false);
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
@@ -715,7 +714,7 @@ export default function TovarlarPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const archive = async (id: string) => {
     if (!confirm("O'chirilsinmi?")) return;
@@ -770,7 +769,6 @@ export default function TovarlarPage() {
     w.document.close();
   };
 
-  if (status === 'loading') return null;
 
   // Action buttons shared between table and card
   const ActionBtns = ({ p }: { p: Product }) => (

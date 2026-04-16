@@ -128,7 +128,6 @@ export default function XaridlarPage() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
 
-  useEffect(() => { if (status === 'unauthenticated') router.push('/login'); }, [status, router]);
 
   const load = () => {
     setLoading(true);
@@ -137,7 +136,7 @@ export default function XaridlarPage() {
     if (to) params.set('to', to);
     fetch(`/api/xaridlar?${params}`).then(r => r.json()).then(d => { setPurchases(Array.isArray(d) ? d : []); setLoading(false); });
   };
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { load(); }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Xaridni qaytarishni tasdiqlaysizmi? Bu amal ombor va ta'minotchi hisoblarini ham yangilaydi.")) return;
@@ -152,7 +151,6 @@ export default function XaridlarPage() {
 
   const totalAmount = filtered.reduce((s, p) => s + p.totalAmount, 0);
 
-  if (status === 'loading') return null;
 
   return (
     <>
